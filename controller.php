@@ -1,11 +1,11 @@
 <?php
 	include_once 'objets/classe-adherent.php';
 
-	define('PRE_INSCRIT', 0);
-	define('INSCRIT', 1);
-	define('PROFESSEUR', 2);
-	define('SECRETAIRE', 3);
-	define('PRESIDENT', 4);
+	define('PRE_INSCRIT', 1);
+	define('INSCRIT', 2);
+	define('PROFESSEUR', 3);
+	define('SECRETAIRE', 4);
+	define('PRESIDENT', 5);
 /*
 	$array = array(
 		'login' =>'',
@@ -44,25 +44,54 @@
 		var_dump(json_decode($json));
 		
 	}*/
+	$debug_statut = PRESIDENT;
+
+	$nav = menuButton($debug_statut);
+	/*$aside = asideButton($page);
+	$section = */
 
 	function menuButton($nStatut)
 	{
 		$nav = '';
 
 		if ($nStatut == PRESIDENT) {
-		 $nav .= '<div class="nav_button">	
-					<input type="button" id="classic_button" name="logout_button" value="Utilisateurs" onclick=" button()" />
+		 $nav .= '<div class="nav_button">
+		 			<form id="button" name="button" method="post" action="#">
+						<input type="submit" name="valid" id="button" name="logout_button" value="Utilisateurs" />
+					</form>
 				</div>';
 		}
 
 		$nav .= '<div class="nav_button">
-					<input type="button" id="classic_button" name="logout_button" value="Réservations" onclick=" button()" />
+		 			<form id="button" name="button" method="post" action="#">
+						<input type="submit" id="classic_button" name="valid" value="Réservations" />
+					</form>
 				</div>
 				<div class="nav_button">
-					<input type="button" id="classic_button" name="logout_button" value="Adhérents" onclick=" button()" />
+		 			<form id="button" name="button" method="post" action="#">
+						<input type="submit" id="classic_button" name="valid" value="Adhérents" />
+					</form>
 				</div>';
 
 		return $nav;
+
+	}
+
+	function displayUsersPage()
+	{
+		return 'La page Utilisateurs';
+
+	}
+
+	function displayMembersPage()
+	{
+		return 'La page Adhérents';
+
+	}
+
+	function displayReservationsPage()
+	{
+		return 'La page Réservations';
 
 	}
 
@@ -88,7 +117,7 @@
 							$html .= '><a href="./statistiques.php">Statistiques</a></li>
 						</ul>';
 					echo $html;
-				}
+	}
 
 
 

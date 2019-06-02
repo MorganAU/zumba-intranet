@@ -1,5 +1,5 @@
 <?php
-	include 'controller.php';
+	include_once 'controller.php';
 ?>
 
 <!DOCTYPE html>
@@ -12,7 +12,9 @@
 <body>
 	<header>Ceci est le header</header>
 	<nav>
-		<?php echo menuButton(4); ?>
+		<?php 
+			echo $nav;
+		?>
 	</nav>
 
 	<aside>
@@ -38,7 +40,21 @@
 				<input type="button" id="classic_button" name="logout_button" value="Déconnexion" onclick=" 	button()" />
 		</div>
 	</aside>
-	<section>Ceci est la section</section>
+	<section>
+		<?php
+			if (isset($_POST['valid'])) {
+   				if ($_POST['valid'] == 'Utilisateurs' && $debug_statut == PRESIDENT) {
+        			echo displayUsersPage();
+   				} else if ($_POST['valid'] == 'Adhérents') {
+   					echo displayMembersPage();
+   				} else {
+   					echo displayReservationsPage();
+   				}
+			} else {
+				echo displayReservationsPage();					
+			}
+		?>
+	</section>
 	<footer>Ceci est le footer</footer>
 </body>
 </html>
