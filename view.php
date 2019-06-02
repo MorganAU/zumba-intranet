@@ -42,17 +42,7 @@
 	</aside>
 	<section>
 		<?php
-			if (isset($_POST['valid'])) {
-   				if ($_POST['valid'] == 'Utilisateurs' && $debug_statut == PRESIDENT) {
-        			echo displayUsersPage();
-   				} else if ($_POST['valid'] == 'Adhérents') {
-   					echo displayMembersPage();
-   				} else {
-   					echo displayReservationsPage();
-   				}
-			} else {
-				echo displayReservationsPage();					
-			}
+			echo $section;
 		?>
 	</section>
 	<footer>Ceci est le footer</footer>

@@ -6,49 +6,12 @@
 	define('PROFESSEUR', 3);
 	define('SECRETAIRE', 4);
 	define('PRESIDENT', 5);
-/*
-	$array = array(
-		'login' =>'',
-		'nom' => '',
-		'prenom' => '',
-		'mdp' => '',
-		'statut' => '',
-		'adresse' => '',
-		'cp' => '',
-		'ville' => '',
-		'tel' => '',
-		'mail' => '',
-		'photo' => '',
-		'dateInscritpion' => ''
-	);
 
-	if ($argc < 11) {
-		die('Manque des informations');
-	} else {
-
-		$file = fopen('log.json', 'rw+');
-		// \écrire dans le fichier
-		
-		fputs($file, "{\n");
-		foreach( array_keys( $array ) as $index => $key ) {
-			// display the current index + key + value
-   			$array[$key] = $argv[$index + 1];
-			fputs($file, "\t\"" . $key . "\": \"" . $array[$key] . "\",\n");
-		}
-		fputs($file, "}");
-
-		fclose($file);
-
-		$json = file_get_contents("log.json");
-
-		var_dump(json_decode($json));
-		
-	}*/
 	$debug_statut = PRESIDENT;
 
 	$nav = menuButton($debug_statut);
-	/*$aside = asideButton($page);
-	$section = */
+	/*$aside = asideButton($page);*/
+	$section = display($debug_statut);
 
 	function menuButton($nStatut)
 	{
@@ -77,6 +40,21 @@
 
 	}
 
+	function display($nStatut)
+	{
+		if (isset($_POST['valid'])) {
+   			if ($_POST['valid'] == 'Utilisateurs' && $nStatut == PRESIDENT) {
+        		return displayUsersPage();
+   			} else if ($_POST['valid'] == 'Adhérents') {
+   				return displayMembersPage();
+   			} else {
+   				return displayReservationsPage();
+   			}
+		} else {
+			return displayReservationsPage();					
+		}
+	}
+
 	function displayUsersPage()
 	{
 		return 'La page Utilisateurs';
@@ -95,29 +73,6 @@
 
 	}
 
-	function choixMenu()
-	{
-		$page = basename($_SERVER['SCRIPT_NAME']);
-			$html =
-				'<ul id="menu">
-					<li class="item" ';
-					if($page == 'options.php') {
-								$html .= 'class="actif"';
-					}
-					$html .= '><a href="./options.php">Options des questionnaires</a></li>
-					<li class="item" ';
-					if($page == 'graphiques.php') {
-								$html .= 'class="actif"';
-							}
-							$html .= '><a href="./graphiques.php">Graphiques</a></li>
-							<li class="item" ';
-							if($page == 'statistiques.php') {
-								$html .= 'class="actif"';
-							}
-							$html .= '><a href="./statistiques.php">Statistiques</a></li>
-						</ul>';
-					echo $html;
-	}
 
 
 
