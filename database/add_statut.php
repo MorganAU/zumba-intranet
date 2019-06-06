@@ -1,4 +1,5 @@
 <?php
+	include 'database-functions.php';
 /**
 * 
 *
@@ -8,26 +9,21 @@
 *
 *
 **/
+	echo 'Ajout de statut supplémentaire' . PHP_EOL;
 
-	// Creation d'un DSN (Data Source Name)
-	$dsn = 'mysql:host=localhost;dbname=zumba_intranet;port=3306;charset=utf8';
-			
-	try {
-		// Instanciation d'un objet PDO
-		$pdo = new PDO($dsn, 'root', '');
-	}
-			
-	//Gestion des erreurs
-	catch (PDOException $exception) {
-		echo 'Erreur : ' . $exception->getMessage() . '<br />';
-		echo 'N° : ' . $exception->getCode() . '<br />';
-		exit('Erreur de connexion à la base de données');
-	}
-	
-	echo PHP_EOL;
+	$host = loopTest('host');
+	$login = loopTest('phpMyAdmin login');
+	$password = loopTest('password');
+
+	$pdo = databaseConnect($host, $login, $password);
+
+	$q = 'USE zumba_intranet';
+	$pdo->query($q);
+
 	$index = readStatut($pdo) . PHP_EOL . PHP_EOL;
-	
-	echo 'Voulez-vous ajouter une nouvelle entrée ? => o/n' . PHP_EOL;
+
+	echo 'Voulez-vous ajouter un statut : o pour oui' . PHP_EOL;
+	$index = readStatut($pdo) . PHP_EOL . PHP_EOL;
 	$answer = strtolower(trim(fgets(STDIN)));
 
 	 while ($answer == 'o') {
