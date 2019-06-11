@@ -25,6 +25,7 @@
 		private $adresse;
 		private $cp;
 		private $ville;
+		private $tel;
 		private $mail;
 		private $photo;
 		private $dateInscritpion;
@@ -69,20 +70,27 @@
 		*								READ 								 *
 		*********************************************************************/
  
-		public function readUserByMail($sMail) 
+		public function readAdherentByMail($sMail) 
 		{
 			$pdo = databaseConnect();
 						
-			$q = $pdo->prepare('SELECT * FROM mod582_user_coment_add WHERE mail = :mail');
+			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
 
 			$q->bindParam(':mail', $sMail);
 
 			if($q->execute() != false) {
 				while ($row = $q->fetch()) {
-					$this->setId($row['registered_id']);
-					$this->setNickname($row['nickname']);
-					$this->setMail($row['mail']);
-					$this->setPass($row['pass']);
+					$this->setNom($row['nom_adherent']);
+					$this->setPrenom($row['prenom_adherent']);
+					$this->setPass($row['mdp_adherent']);
+					$this->setStatut($row['statut_adherent']);
+					$this->setAdresse($row['adresse_adherent']);
+					$this->setCp($row['cp_adherent']);
+					$this->setVille($row['ville_adherent']);
+					$this->setTel($row['tel_adherent']);
+					$this->setMail($row['mail_adherent']);
+					$this->setPhoto($row['photo_adherent']);
+					$this->setDate($row['date_adherent']);
 				}	
 			}
 		}
@@ -142,17 +150,19 @@
 			}
 		}
 
- 		public function getAllUsers()
+ 		public function getAllAdherents()
 		{
 			$pdo = databaseConnect();
 						
-			$q = $pdo->prepare('SELECT * FROM mod582_user_coment_add');
+			$q = $pdo->prepare('SELECT * FROM adherent');
 
 			$aObjects = array();
 
 			if($q->execute() != false) {
 				$aObjects = $q->fetchAll();	
 			}
+
+			var_dump($aObjects);
 			return $aObjects; 
 		}
 
@@ -236,19 +246,14 @@
 		*****					MUTATORS						*****
 		************************************************************/
 
-		public function setId($sId)
+		public function setNom($sNom)
 		{
-			$this->id = $sId;
+			$this->nom = $sNom;
 		}
 
-		public function setNickname($sNickname)
+		public function setPrenom($sPrenom)
 		{
-			$this->nickname = $sNickname;
-		}
-
-		public function setMail($sMail)
-		{
-			$this->mail = $sMail;
+			$this->prenom = $sPrenom;
 		}
 
 		public function setPass($sPass)
@@ -256,10 +261,48 @@
 			$this->pass = $sPass;
 		}
 
-		public function setStatus($nStatus)
+		public function setStatut($nStatut)
 		{
-			$this->status = $nStatus;
+			$this->statut = $nStatut;
 		}
+
+		public function setAdresse($sAdresse)
+		{
+			$this->adresse = $sAdresse;
+		}
+
+		public function setCp($nCp)
+		{
+			$this->cp = $nCp;
+		}
+
+		public function setVille($sVille)
+		{
+			$this->ville = $sVille;
+		}
+
+		public function setTel($nTel)
+		{
+			$this->tel = $nTel;
+		}
+
+		public function setMail($sMail)
+		{
+			$this->mail = $sMail;
+		}
+
+
+		public function setPhoto($sPhoto)
+		{
+			$this->photo = $sPhoto;
+		}
+
+		public function setDate($sDate)
+		{
+			$this->date = $sDate;
+		}
+
+		
 
 		
 		/************************************************************
@@ -270,14 +313,14 @@
 			return $this->id;
 		}
 
-		public function getNickname()
+		public function getNom()
 		{
-			return $this->nickname;
+			return $this->nom;
 		}
 
-		public function getMail()
+		public function getPrenom()
 		{
-			return $this->mail;
+			return $this->prenom;
 		}
 
 		public function getPass()
@@ -285,11 +328,47 @@
 			return $this->pass;
 		}
 
-		public function getStatus()
+		public function getStatut()
 		{
-			return $this->status;
+			return $this->statut;
 		}
- 
+
+		public function getAdresse()
+		{
+			return $this->adresse;
+		}
+
+		public function getCp()
+		{
+			return $this->cp;
+		}
+
+		public function getVille()
+		{
+			return $this->ville;
+		}
+
+		public function getTel()
+		{
+			return $this->tel;
+		}
+
+		public function getMail()
+		{
+			return $this->mail;
+		}
+
+		public function getPhoto()
+		{
+			return $this->photo;
+		}
+
+		public function getDate()
+		{
+			return $this->date;
+		}
+
+		
 	}
  
 

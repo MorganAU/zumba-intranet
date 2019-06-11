@@ -12,7 +12,7 @@
 		catch (PDOException $exception) {
 			echo 'Error : ' . $exception->getMessage() . '<br />';
 			echo 'N° : ' . $exception->getCode() . '<br/>';
-			logoutLog('database_error');
+			die('Error database');
 		}
 
 		return $pdo;
