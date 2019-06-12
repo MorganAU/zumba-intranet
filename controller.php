@@ -15,11 +15,11 @@
 
 		if (isset($_POST['valid'])) {
    				if ($_POST['valid'] == 'Utilisateurs' && $nStatut == PRESIDENT) {
-   				$_SESSION['page'] = 'Utilisateurs';
+   					$_SESSION['page'] = 'Utilisateurs';
    				} else if ($_POST['valid'] == 'Adhérents') {
-   				$_SESSION['page'] = 'Adhérents';
+   					$_SESSION['page'] = 'Adhérents';
    				} else {
-   				$_SESSION['page'] = 'Réservation';	
+   					$_SESSION['page'] = 'Réservation';	
 			}
 		}
 
@@ -57,15 +57,11 @@
 					break;
 				
 				case 'Modifier un adhérent':
-					$page = updateMember();
+					$page = membersList();
 					break;
 				
 				case 'Supprimer un adhérent':
-					$page = deleteMember();
-					break;
-				
-				case 'Gestion des mots de passe':
-					$page = updatePasswords();
+					$page = membersList();
 					break;
 				
 				default:
@@ -76,11 +72,9 @@
 			$page = membersList();					
 		}
 
+
 		return $page;
 	}
-
-
-
 
 
 

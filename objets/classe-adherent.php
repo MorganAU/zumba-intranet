@@ -5,14 +5,13 @@
 															  	  nom_adherent, 
 															  	  prenom_adherent, 
 															  	  mdp_adherent, 
-															  	  statut_adherent, 
 															  	  adresse_adherent, 
 															  	  cp_adherent, 
 															  	  ville_adherent, 
 															  	  mail_adherent, 
 															  	  photo_adherent,  
 															  	  date_adherent) 
-							  VALUES (:login, :nom, :prenom, :mdp, :statut, :adresse, :cp, :ville, :mail, :photo, :dateInscritpion)');
+							  VALUES (:login, :nom, :prenom, :mdp, :adresse, :cp, :ville, :mail, :photo, :dateInscritpion)');
 
 	class Adherent 
 	{ 
@@ -49,7 +48,6 @@
 			$q->bindParam(':nom', $this->getNom());
 			$q->bindParam(':prenom', $this->getPrenom());
 			$q->bindParam(':mdp', $this->getPass());
-			$q->bindParam(':statut', $this->getStatut());
 			$q->bindParam(':adresse', $this->getAdresse());
 			$q->bindParam(':cp', $this->getCp());
 			$q->bindParam(':ville', $this->getVille());
@@ -83,7 +81,6 @@
 					$this->setNom($row['nom_adherent']);
 					$this->setPrenom($row['prenom_adherent']);
 					$this->setPass($row['mdp_adherent']);
-					$this->setStatut($row['statut_adherent']);
 					$this->setAdresse($row['adresse_adherent']);
 					$this->setCp($row['cp_adherent']);
 					$this->setVille($row['ville_adherent']);
@@ -111,26 +108,25 @@
 			return $id; 
 		}
 
-		public function readUserStatus($sMail)
+		public function readStatus($nId)
 		{
 			$pdo = databaseConnect();
-			$metaKey = 'mod582_user_level';
 
-			$q = $pdo->prepare('SELECT meta_value
-								FROM mod582_usermeta AS meta
-								INNER JOIN mod582_users AS user
-								ON user.ID = meta.user_id
-								WHERE user_email = :mail
-								AND meta.meta_key = :metaKey');
+			$status = '';
+			$q = $pdo->prepare('SELECT nom_statut FROM adherent AS ad 
+								INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
+								INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
+								WHERE ap.id_adherent = :id');
 
-			$q->bindParam(':mail', $sMail);
-			$q->bindParam(':metaKey', $metaKey);
+			$q->bindParam(':id', $nId);
 
 			if($q->execute() != false) {
 				while ($row = $q->fetch()) {
-					$this->setStatus($row['meta_value']);
+					$status = $row['nom_statut'];
 				}	
 			}
+
+			return $status;
 		}
 
 		public function readAdmin($sMail) 
@@ -155,16 +151,50 @@
 			$pdo = databaseConnect();
 						
 			$q = $pdo->prepare('SELECT * FROM adherent');
-
+			$i = 0;
 			$aObjects = array();
 
-			if($q->execute() != false) {
-				$aObjects = $q->fetchAll();	
+			if($q->execute() != false) {        
+               while ($data=$q->fetch()) {
+                   $aObjects[$i]['id_adherent'] = $data['id_adherent'];
+                   $aObjects[$i]['nom_adherent'] = $data['nom_adherent'];
+                   $aObjects[$i]['prenom_adherent'] = $data['prenom_adherent'];
+                   $aObjects[$i]['mdp_adherent'] = $data['mdp_adherent'];
+                   $aObjects[$i]['adresse_adherent'] = $data['adresse_adherent'];
+                   $aObjects[$i]['cp_adherent'] = $data['cp_adherent'];
+                   $aObjects[$i]['ville_adherent'] = $data['ville_adherent'];
+                   $aObjects[$i]['tel_adherent'] = $data['tel_adherent'];
+                   $aObjects[$i]['mail_adherent'] = $data['mail_adherent'];
+                   $aObjects[$i]['photo_adherent'] = $data['photo_adherent'];
+                   $aObjects[$i]['date_adherent'] = $data['date_adherent'];
+                   $i++;
+               }
+               
 			}
 
-			var_dump($aObjects);
 			return $aObjects; 
 		}
+
+		public function getAllPreRegistration()
+				{
+					$pdo = databaseConnect();
+
+					$id = PRE_INSCRIT;
+								
+					$q = $pdo->prepare('SELECT * FROM adherent AS ad 
+										INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
+										INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
+										WHERE s.id_statut = :id');
+
+					$q->bindParam(':id', $id);
+					$aObjects = array();
+
+					if($q->execute() != false) {
+						$aObjects = $q->fetchAll();	
+					}
+
+					return $aObjects; 
+				}
 
 
 		/*********************************************************************
