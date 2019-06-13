@@ -45,6 +45,34 @@
 		if (isset($_POST['aside_valid'])) {
 			switch ($_POST['aside_valid']) {
 				case 'Voir les adhérents':
+					$_SESSION['aside_valid'] = 'Voir les adhérents';
+					break;
+
+				case 'Pré-inscription':
+					$_SESSION['aside_valid'] = 'Pré-inscription';
+					break;
+				
+				case 'Ajouter un adhérent':
+					$_SESSION['aside_valid'] = 'Ajouter un adhérent';
+					break;
+				
+				case 'Modifier un adhérent':
+					$_SESSION['aside_valid'] = 'Modifier un adhérent';
+					break;
+				
+				case 'Supprimer un adhérent':
+					$_SESSION['aside_valid'] = 'Supprimer un adhérent';
+					break;
+				
+				default:
+					$_SESSION['aside_valid'] = 'Voir les adhérents';
+					break;
+			}
+		}
+		
+		if (isset($_SESSION['aside_valid'])) {
+			switch ($_SESSION['aside_valid']) {
+				case 'Voir les adhérents':
 					$page = membersList();
 					break;
 
@@ -68,14 +96,70 @@
 					$page = membersList();
 					break;
 			}
-		} else {
-			$page = membersList();					
 		}
 
 
 		return $page;
 	}
 
+
+
+function buttons_form_process_switch($aUser)
+{
+	$page ='';
+
+	if (isset($_POST['buttons_form'])) {
+		switch ($_POST['buttons_form']) {
+			case 'Envoyer un mail':
+				$page = sendMail($aUser);
+				break;
+
+			case 'Valider l\'inscription':
+				$page = validPreRegistration($aUser);
+				break;
+			
+			case 'Ajouter un adhérent':
+				$page = addMember();
+				break;
+			
+			case 'Modifier un adhérent':
+				$page = membersList();
+				break;
+			
+			case 'Supprimer un adhérent':
+				$page = membersList();
+				break;
+			
+			default:
+				$page = membersList();
+				break;
+		}
+	}
+
+
+	return $page;
+}
+
+
+
+function sendMail($aUser)
+{
+	$text = '<h3>Un mail est envoyé à "' . $aUser['mail_adherent'] . '" pour qu\'il puisse changer son mot de passe</h3>';
+
+	return $text;
+}
+
+
+
+function validPreRegistration($aUser)
+{
+	$adherent = new Adherent();
+	$int = intval($aUser['id_adherent'], 10);
+	$adherent->updatePreRegistrationStatus($int);
+	$_SESSION['button_page'] = 'Valider l\'inscription';
+
+
+}
 
 
 

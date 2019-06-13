@@ -156,9 +156,9 @@
 			$aAdherent = array();
 			$adherent = new Adherent();
 			$aAdherent = $adherent->getAllAdherents();
-			
+	
 			for ( $i = 0; $i < 3; $i++ ) {
-             $aAdherent[$i] += [ 'statut_adherent' => $adherent->readStatus($aAdherent[$i]['id_adherent']) ];
+             $aAdherent[$i] += ['statut_adherent' => $adherent->readStatus($aAdherent[$i]['id_adherent'])];
        		}
 
 			return $aAdherent;
@@ -178,58 +178,76 @@
 		}
 
 
-		function button_switch()
+		function button_switch($aUser)
 		{
-			$name_button = '';
-			$id_button = 0;
-
 			if (isset($_POST['aside_valid'])) {
 				switch ($_POST['aside_valid']) {
 					case 'Voir les adhérents':
-						$name_button = 'Envoyer un mail';
-						$id_button = 0;
+						$_SESSION['button_page'] = 'Envoyer un mail';
 						break;
 					
 					case 'Pré-inscription':
-						$name_button = 'Valider l\'inscription';
-						$id_button = 1;
+						$_SESSION['button_page'] = 'Valider l\'inscription';
 						break;
 					
 					case 'Modifier un adhérent':
-						$name_button = 'Modifier';
-						$id_button = 3;
+						$_SESSION['button_page'] = 'Modifier';
 						break;
 					
 					case 'Supprimer un adhérent':
-						$name_button = 'Supprimer';
+						$_SESSION['button_page'] = 'Supprimer';
+						break;
+					
+					default:
+						$_SESSION['button_page'] = 'Envoyer un mail';
+						break;
+				}
+			}
+
+				switch ($_SESSION['button_page']) {
+					case 'Envoyer un mail':
+						$name_button = $_SESSION['button_page'];
+						$id_button = 0;
+						break;
+					
+					case 'Valider l\'inscription':
+						$name_button = $_SESSION['button_page'];
+						$id_button = 1;
+						break;
+					
+					case 'Modifier':
+						$name_button = $_SESSION['button_page'];
+						$id_button = 3;
+						break;
+					
+					case 'Supprimer':
+						$name_button = $_SESSION['button_page'];
 						$id_button = 4;
 						break;
 					
 					default:
-						$name_button = 'Envoyer un mail';
+						$name_button = $_SESSION['button_page'];
 						$id_button = 0;
 						break;
 				}
-			} else {
-				$name_button = 'Envoyer un mail';
-				$id_button = 0;
-			}
-	
+
 			$button = '
 					<td>
-						<form action="registration_process.php" method="POST">
-							<input type="submit" name="admin_button" value="' . $name_button . '" 	onclick="buttonDelete()">
-							<input type="hidden" name="id" value="" />
+						<form name="aside_button" method="post" action="#">
+							<input type="submit" name="buttons_form" value="' . $name_button . '" />
+							<input type="hidden" name="id" value="' . $aUser['id_adherent'] . '" />
+							<input type="hidden" name="mail" value="' . $aUser['mail_adherent'] . '" />
 						</form>
 					</td>
 					<script>
 						var buttons = document.getElementsByClassName("aside_div");
 						buttons[' . $id_button . '].id= "active";
-					</script>';/* . $aData[$i]['id_adherent'] . */
-
+					</script>';
 			return $button;
 
 		}
+
+
 	
 		function preRegistrationList()
 		{
@@ -253,9 +271,8 @@
 	
 		function tablePattern($aData)
 		{
-	
-			if (isset($_POST['aside_valid'])) {
-				$tab = $_POST['aside_valid'];
+			if (isset($_SESSION['aside_valid'])) {
+				$tab = $_SESSION['aside_valid'];
 			} else {
 				$tab = 'Voir les adhérents';
 			}
@@ -278,27 +295,37 @@
 							';
 	
 			for ($i = 0 ; $i < $c ; $i++) {
-					$page .= '
-							</tr>
-							<tr>
-								<td>' . $aData[$i]['id_adherent'] . '</td>
-								<td>' . $aData[$i]['nom_adherent'] . '</td>
-								<td>' . $aData[$i]['prenom_adherent'] . '</td>
-								<td>' . $aData[$i]['statut_adherent'] . '</td>
-								<td>' . $aData[$i]['adresse_adherent'] . '</td>
-								<td>' . $aData[$i]['cp_adherent'] . '</td>
-								<td>' . $aData[$i]['ville_adherent'] . '</td>
-								<td>' . $aData[$i]['tel_adherent'] . '</td>
-								<td>' . $aData[$i]['mail_adherent'] . '</td>
-								<td>' . $aData[$i]['photo_adherent'] . '</td>
-								<td>' . $aData[$i]['date_adherent'] . '</td>
-								';
+
+
+
+
+				$page .= '
+						</tr>
+						<tr>
+							<td>' . $aData[$i]['id_adherent'] . '</td>
+							<td>' . $aData[$i]['nom_adherent'] . '</td>
+							<td>' . $aData[$i]['prenom_adherent'] . '</td>
+							<td>' . $aData[$i]['statut_adherent'] . '</td>
+							<td>' . $aData[$i]['adresse_adherent'] . '</td>
+							<td>' . $aData[$i]['cp_adherent'] . '</td>
+							<td>' . $aData[$i]['ville_adherent'] . '</td>
+							<td>' . $aData[$i]['tel_adherent'] . '</td>
+							<td>' . $aData[$i]['mail_adherent'] . '</td>
+							<td>' . $aData[$i]['photo_adherent'] . '</td>
+							<td>' . newFormatDate($aData[$i]['date_adherent']) . '</td>
+							';
 	
-					if ($tab != 'Ajouter un adhérent') {
-						$page .= button_switch();
+				if ($tab != 'Ajouter un adhérent') {
+					$page .= button_switch($aData[$i]);
+				}
+				if (isset($_POST['id'])) {
+					if ($aData[$i]['id_adherent'] == $_POST['id']) {
+						$page .= buttons_form_process_switch($aData[$i]);
+						unset($_POST['id']);
 					}
+				}
 	
-					$page .= '</tr>';
+				$page .= '</tr>';
 	
 			}
 	
@@ -306,6 +333,15 @@
 	
 			return $page;
 	
+		}
+
+
+
+
+		function newFormatDate($sDate)
+		{
+			$dt = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);
+			return $dt->format('j-m-Y H:i:s');
 		}
 	
 	

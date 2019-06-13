@@ -219,12 +219,30 @@
 
 			$q->execute();
 			
-			if ($q->fetch() != false) {
-				logoutLog('database_error');
-			} else {
-				loginLog('update_sucess');
+			if($q->execute() != false) {
+						$aObjects = $q->fetchAll();	
 			}
 
+		}
+
+
+
+		public function updatePreRegistrationStatus($nId)
+		{
+			$statut = INSCRIT;
+			$pdo = databaseConnect();
+			
+			$q = $pdo->prepare('UPDATE appartient
+								SET id_statut = :statut,
+								WHERE id_adherent = :id');
+
+			$q->bindParam(':statut', $statut);
+			$q->bindParam(':id', $nId);
+
+			$q->execute();
+
+			if($q->execute() != false) {
+			}
 		}
  
 		public function updatePassUser($sMail, $sNewPassword) 
@@ -275,6 +293,11 @@
 		/************************************************************
 		*****					MUTATORS						*****
 		************************************************************/
+
+		public function setId($nId)
+		{
+			$this->id = $nId;
+		}
 
 		public function setNom($sNom)
 		{
