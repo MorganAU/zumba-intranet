@@ -97,3 +97,7 @@ footer {
 	border: 1px solid black;
 	text-align: center;
 }
+#error {
+	background-color: red;
+	width: 100%;
+}

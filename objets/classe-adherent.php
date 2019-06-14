@@ -1,8 +1,7 @@
 <?php
 	include_once 'sql_connect.php';
 
-	define('CREER_ADHERENT', 'INSERT INTO mod582_user_coment_add (login_adherent,
-															  	  nom_adherent, 
+	define('CREER_ADHERENT', 'INSERT INTO mod582_user_coment_add (nom_adherent, 
 															  	  prenom_adherent, 
 															  	  mdp_adherent, 
 															  	  adresse_adherent, 
@@ -16,7 +15,6 @@
 	class Adherent 
 	{ 
 		private $id;
-		private $login;
 		private $nom;
 		private $prenom;
 		private $pass;
@@ -31,7 +29,7 @@
  
 		public function __construct() 
 		{
- 			$this->statut = 0;
+ 			$this->statut = 1;
 		}
  
 		/*********************************************************************
@@ -233,15 +231,14 @@
 			$pdo = databaseConnect();
 			
 			$q = $pdo->prepare('UPDATE appartient
-								SET id_statut = :statut,
+								SET id_statut = :statut
 								WHERE id_adherent = :id');
 
 			$q->bindParam(':statut', $statut);
-			$q->bindParam(':id', $nId);
-
-			$q->execute();
+			$q->bindParam(':id', intval($nId));
 
 			if($q->execute() != false) {
+				header('Location:' . $_SERVER['PHP_SELF']);
 			}
 		}
  
