@@ -60,13 +60,13 @@
 				<div class="user-div">
 					<label class="user-label" for="lastname">Nom de famille</label><br />
 					<input  type="text" name="lastname" placeholder="Nom" /><br />
-					<label class="user-label" for="lastname">Prénom</label><br />				
+					<label class="user-label" for="name">Prénom</label><br />				
 					<input type="text" name="name" placeholder="Prénom" />
 				</div>				
 				<div class="user-div">
-					<label class="user-label" for="lastname">Email</label><br />
-					<input type="text" name="mail" placeholder="Email" /><br />
-					<label class="user-label" for="lastname">Mot de passe provisoire</label><br />
+					<label class="user-label" for="mail">Email</label><br />
+					<input type="text" name="email" placeholder="Email" /><br />
+					<label class="user-label" for="tempPass">Mot de passe provisoire</label><br />
 					<input type="text" name="tempPass" placeholder="Mot de passe provisoire" />
 				</div>
 				<div>
@@ -276,33 +276,38 @@
 	
 	function addMember()
 	{
-		$page = '<h1 id="za">Formulaire d\'ajout de membre</h1>';
-		$page .= '<div id="for-error"></div>';
-	
+		$page = '<h1>Formulaire d\'ajout de membre</h1>';
 		$page .= '
-			<form action="#" method="post" id="add-user-form">
+			<form action="#" method="post" id="add-user-form" onsubmit="return verifAllForm()">
 				<div class="add-user-div">
 					<label class="user-label" for="lastname">Nom de famille</label><br />
-					<input class="add-user-input" id="lastname" type="text" name="lastname" placeholder="Nom" onblur="verifInputName(this)" /><br />
+					<input class="add-user-input" id="lastname" type="text" name="lastname" placeholder="Nom" onblur="verifInputText(this, 6, 18)" required /><br />
+					<p class="hidden" name="lastname"></p>
 					<label class="user-label" for="name">Prénom</label><br />				
-					<input class="add-user-input" type="text" name="name" placeholder="Prénom" onblur="verifInputName(this)" />
+					<input class="add-user-input" type="text" name="name" placeholder="Prénom" onblur="verifInputText(this, 6, 18)" required />
+					<p class="hidden" name="name"></p>
 				</div>
 				<div class="add-user-div">
 					<label class="user-label" for="address">Adresse</label><br />
-					<input class="add-user-input" type="text" name="address" placeholder="Adresse"  /><br />
+					<input class="add-user-input" type="text" name="address" placeholder="Adresse"  onblur="verifInputText(this, 6, 248)" required /><br />
+					<p class="hidden" name="address"></p>					
 					<label class="user-label" for="cp">Code Postal</label><br />
-					<input class="add-user-input" type="text" name="cp" placeholder="Code Postal"  />
+					<input class="add-user-input" type="text" name="cp" placeholder="Code Postal"  onblur="verifInputText(this, 5, 5)" required />
+					<p class="hidden" name="cp"></p>					
 					<label class="user-label" for="city">Ville</label><br />
-					<input class="add-user-input" type="text" name="city" placeholder="Ville"  />
+					<input class="add-user-input" type="text" name="city" placeholder="Ville"  onblur="verifInputText(this, 4, 75)" required />
+					<p class="hidden" name="city"></p>					
 				</div>
 				<div class="add-user-div">
 					<label class="user-label" for="mail">Email</label><br />
-					<input class="add-user-input" type="text" name="mail" placeholder="Email"  /><br />
+					<input class="add-user-input" type="email" name="email" placeholder="Email"  onblur="verifInputText(this, 6, 75)" required /><br />
+					<p class="hidden" name="email"></p>					
 					<label class="user-label" for="phone">Téléphone</label><br />				
-					<input class="add-user-input" type="text" name="phone" placeholder="Téléphone"  />
+					<input class="add-user-input" type="text" name="phone" placeholder="Téléphone"  onblur="verifInputText(this, 10, 10)" required />
+					<p class="hidden" name="phone"></p>					
 				</div>
 				<div>
-					<input class="user-input" type="submit" name="add-user-button" value="Valider" onsubmit="verif(this)" />
+					<input class="user-input" type="submit" name="add-user-button" value="Valider" />
 				</div>
 			</form>
 		';

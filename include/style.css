@@ -20,7 +20,7 @@ nav {
 }
 aside {
 	min-width: 9%;
-	height: 400px;
+	height: 600px;
 	float: left;
 	background-color: #B8FFD5;
 	display: visible;
@@ -28,9 +28,12 @@ aside {
 .hidden {
 	display: none;
 }
+.display {
+	display: block;
+}
 section {
 	width: 86%;
-	height: 400px;
+	height: 600px;
 	float: right;
 	display: inline-block;
 	background-color: #FFC5B8;
@@ -96,8 +99,4 @@ footer {
 .style-table, th, td {
 	border: 1px solid black;
 	text-align: center;
-}
-#error {
-	background-color: red;
-	width: 100%;
 }

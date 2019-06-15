@@ -180,8 +180,9 @@
 		$aAdherent = array();
 		$adherent = new Adherent();
 		$aAdherent = $adherent->getAllAdherents();
+		$count = count($aAdherent);
 	
-		for ( $i = 0; $i < 3; $i++ ) {
+		for ( $i = 0; $i < $count; $i++ ) {
           $aAdherent[$i] += ['statut_adherent' => $adherent->readStatus($aAdherent[$i]['id_adherent'])];
     		}
 
@@ -254,13 +255,16 @@
 
 	function newFormatDate($sDate)
 	{
-		$dt = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);
-		return $dt->format('j-m-Y H:i:s');
+		if ($sDate != null) {
+			$dt = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);		
+			return $dt->format('j-m-Y H:i:s');
+		}
+
 	}
 
 
 
-	function addUserButton()
+	function addMembersButton()
 	{
 		if (isset($_POST['add-user-button'])) {
 			if ($_POST['add-user-button'] == 'Valider') {
@@ -278,3 +282,4 @@
 			var_dump($newAdherent);
 		}
 	}
+	

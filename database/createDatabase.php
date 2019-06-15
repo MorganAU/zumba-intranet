@@ -52,16 +52,15 @@
 	{
 		$q = 'CREATE TABLE IF NOT EXISTS `adherent` (
 					`id_adherent` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-					`nom_adherent` VARCHAR(20),
-					`prenom_adherent` VARCHAR(20),
-					`mdp_adherent` VARCHAR(250),
-					`statut_adherent` INT UNSIGNED,
-					`adresse_adherent` VARCHAR(250),
-					`cp_adherent` INT(5) UNSIGNED,
+					`nom_adherent` VARCHAR(20) NOT NULL,
+					`prenom_adherent` VARCHAR(20) NOT NULL,
+					`mdp_adherent` VARCHAR(248),
+					`adresse_adherent` VARCHAR(248),
+					`cp_adherent` VARCHAR(5),
 					`ville_adherent` VARCHAR(80),
 					`tel_adherent` VARCHAR(10),
 					`mail_adherent` VARCHAR(80) NOT NULL,
-					`photo_adherent` VARCHAR(250),
+					`photo_adherent` VARCHAR(248),
 					`date_adherent` DATETIME,
 					PRIMARY KEY (id_adherent)
 				)
