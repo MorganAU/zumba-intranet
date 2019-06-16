@@ -1,22 +1,23 @@
-function verifInputText(champ, nMin, nMax)
+function verifInputText(input)
 {
-	var sizeText = champ.value.length;
-	var name = champ.name;
+	var sizeText = input.value.length;
+	var name = input.name;
+	console.log(input.placeholder);
 
 	if (sizeText != 0) {
 		if (name == 'phone' || name == 'cp') {
-			if (inputTestIsNumber(champ) === false) {
+			if (inputTestIsNumber(input) === false) {
 				return false;
 			}
 		}
 
 		if (name == 'email') {
-			if (inputTestIsEmail(champ) === false) {
+			if (inputTestIsEmail(input) === false) {
 				return false;
 			}
 		}
 
-		if (inputTestSize(champ, nMin, nMax) === false) {
+		if (inputTestSize(input) === false) {
 			return false;
 		} else {
 			return true;
@@ -30,7 +31,7 @@ function inputTestIsNumber(input)
 {
 	var name = input.name;
 	var value = input.value;
-	var placeholder = input["placeholder"];
+	var placeholder = input.placeholder;
 	var message = '';
 
 	if (isNaN(parseInt(value, 10))) {
@@ -45,7 +46,7 @@ function inputTestIsEmail(input)
 {
 	var name = input.name;
 	var value = input.value;
-	var placeholder = input["placeholder"];
+	var placeholder = input.placeholder;
 	var message = '';
 	var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
 	if(!value.match(mailformat))
@@ -57,12 +58,14 @@ function inputTestIsEmail(input)
 	}
 }
 
-function inputTestSize(input, min, max)
+function inputTestSize(input)
 {
 	var name = input.name;
 	var value = input.value;
 	var sizeText = input.value.length;
-	var placeholder = input["placeholder"];
+	var min = input.minLength;
+	var max = input.maxLength;
+	var placeholder = input.placeholder;
 	var message = '';
 
 	if (sizeText < min) {
@@ -85,9 +88,9 @@ function inputTestSize(input, min, max)
 function error(champ, erreur)
 {
 	if(erreur) {
-		champ.style.backgroundColor = "#FF3F33";
+		champ.style.backgroundColor = '#FF3F33';
 	} else {
-		champ.style.backgroundColor = "";
+		champ.style.backgroundColor = '';
 	}
 }
 
@@ -104,7 +107,7 @@ function changeClassAndMessage(sName, sMessage, result)
  		if (para[index] == null) {
  			para = document.getElementsByClassName('display');
  			index = getParaIndex(para, sName);
- 			para[index].innerHTML = "";
+ 			para[index].innerHTML = '';
  		}
 		var newContent = document.createTextNode(sMessage);
 	 	// et lui donne un peu de contenu
@@ -117,9 +120,9 @@ function changeClassAndMessage(sName, sMessage, result)
  		if (para[index] == null) {
  			para = document.getElementsByClassName('hidden');
  			index = getParaIndex(para, sName);
- 			para[index].innerHTML = "";
+ 			para[index].innerHTML = '';
  		}
-		para[index].innerHTML = "";
+		para[index].innerHTML = '';
   		para[index].className = 'hidden';  	
   	}
 }
@@ -142,39 +145,36 @@ function getParaIndex(aElements, sName)
 
 function verifAllForm()
 {
-	var input = document.getElementsByClassName("add-user-input");
+	var input = document.getElementsByClassName('add-user-input');
 	var count = input.length;
-	var aMin = [6, 6, 6, 5, 4, 6, 10];
-	var aMax = [18, 18, 248, 5, 75, 75, 10];
 	var result = '';
 	
 	for (var i = 0 ; i < count ; ) {
 		var sizeText = input[i].value.length;
 		var name = input[i].name;
+		var min = input[i].minLength;
+		var max = input[i].maxLength;
+
 		if (sizeText != 0) {
 			if (name == 'phone' || name == 'cp') {
 				if (inputTestIsNumber(input[i]) === false) {
 					return false;
 				}
 			}
-
 			if (name == 'email') {
 				if (inputTestIsEmail(input[i]) === false) {
 					return false;
 				}
 			}
 	
-			if (inputTestSize(input[i], aMin[i], aMax[i]) === false) {
+			if (inputTestSize(input[i], min, max) === false) {
 				return false;
 			} else {
-					console.log(true);
-					console.log(i);
 				result = true;
 				i++;
 			}
 		}
 	}
-
 	return true;
 
 }

@@ -3,7 +3,7 @@ body {
 	margin-top: 5px;
 	text-align: center;
 	min-height: 100%;
-	width: 1200px;
+	width: 1300px;
 }
 header, aside, footer, section, nav {
 	border: solid 1px black;
@@ -39,7 +39,7 @@ section {
 	background-color: #FFC5B8;
 	margin-bottom: 5px;
 }
-.user-section {
+.section-without-aside {
 	width: 100%;
 }
 footer {

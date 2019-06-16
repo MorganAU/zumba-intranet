@@ -18,5 +18,13 @@
 		return $pdo;
 	}
 
+
+
+	function errorDatabase($sRequest)
+	{
+		echo "\nERREUR : Veuillez contacter un administrateur\n";
+		echo "\nPDO::errorInfo():\n";
+   		print_r($sRequest->errorInfo());
+	}
 	
 	

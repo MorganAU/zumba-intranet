@@ -1,16 +1,16 @@
 <?php
 	include_once 'sql_connect.php';
 
-	define('CREER_ADHERENT', 'INSERT INTO mod582_user_coment_add (nom_adherent, 
-															  	  prenom_adherent, 
-															  	  mdp_adherent, 
-															  	  adresse_adherent, 
-															  	  cp_adherent, 
-															  	  ville_adherent, 
-															  	  mail_adherent, 
-															  	  photo_adherent,  
-															  	  date_adherent) 
-							  VALUES (:login, :nom, :prenom, :mdp, :adresse, :cp, :ville, :mail, :photo, :dateInscritpion)');
+	define('CREER_ADHERENT', 'INSERT INTO adherent (nom_adherent, 
+													prenom_adherent, 
+													adresse_adherent, 
+													cp_adherent, 
+													ville_adherent, 
+													mail_adherent,
+													tel_adherent, 
+													/*photo_adherent,*/  
+													date_adherent) 
+							  VALUES (:nom, :prenom, :adresse, :cp, :ville, :mail, :tel,/* :photo, */NOW())');
 
 	class Adherent 
 	{ 
@@ -40,25 +40,48 @@
 		{
 			$pdo = databaseConnect();
 			$q = $pdo->prepare(CREER_ADHERENT);
+			$lastname = $this->getNom();
+			$name = $this->getPrenom();
+			$address = $this->getAdresse();
+			$cp = $this->getCp();
+			$city = $this->getVille();
+			$email = $this->getMail();
+			$phone = $this->getTel();
 
-			$sPassHash = password_hash($sPass, PASSWORD_DEFAULT);
-			$q->bindParam(':login', $this->getLogin());
-			$q->bindParam(':nom', $this->getNom());
-			$q->bindParam(':prenom', $this->getPrenom());
-			$q->bindParam(':mdp', $this->getPass());
-			$q->bindParam(':adresse', $this->getAdresse());
-			$q->bindParam(':cp', $this->getCp());
-			$q->bindParam(':ville', $this->getVille());
-			$q->bindParam(':mail', $this->getMail());
-			$q->bindParam(':photo', $this->getPhoto());
-			$q->bindParam(':dateInscritpion', $this->dateInscription());
+			$q->bindParam(':nom', $lastname);
+			$q->bindParam(':prenom', $name);
+			$q->bindParam(':adresse', $address);
+			$q->bindParam(':cp', $cp);
+			$q->bindParam(':ville',$city);
+			$q->bindParam(':mail', $email);
+			$q->bindParam(':tel', $phone);
 
-			$q->execute();
-			
-			if ($q == 0) {
-				logout('user_created');
+
+
+			if($q->execute() != false) {
+				$this->readIdByMail($this->getMail());
+				$this->createUserStatus(intval($this->getId()), $this->getStatut());
+				header('Location:' . $_SERVER['PHP_SELF']);
 			} else {
-				log($q->errorInfo());
+				errorDatabase($q);
+			}
+			
+		}
+
+
+
+		public function createUserStatus($nId, $nStatus)
+		{
+			$pdo = databaseConnect();
+
+			$q = $pdo->prepare('INSERT INTO appartient (id_statut, id_adherent)
+								VALUES (:statut,:adherent )');
+
+			$q->bindParam(':statut', $nStatus);
+			$q->bindParam(':adherent', $nId);
+
+			if($q->execute() === false) {
+				errorDatabase($q);
 			}
 		}
 
@@ -76,6 +99,7 @@
 
 			if($q->execute() != false) {
 				while ($row = $q->fetch()) {
+					$this->setId($row['id_adherent']);
 					$this->setNom($row['nom_adherent']);
 					$this->setPrenom($row['prenom_adherent']);
 					$this->setPass($row['mdp_adherent']);
@@ -90,17 +114,18 @@
 			}
 		}
 
-		public function freeNickname($sNickname)
+		public function freeMail($sMail)
 		{
 			$pdo = databaseConnect();
-						
-			$q = $pdo->prepare('SELECT registered_id FROM mod582_user_coment_add WHERE nickname = :nickname');
-
-			$q->bindParam(':nickname', $sNickname);
 			$id = null;
+						
+			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
+
+			$q->bindParam(':mail', $sMail);
 			if($q->execute() != false) {
+			var_dump('expression');
 				while ($row = $q->fetch()) {
-					$id = $row['registered_id'];
+					$id = $row['id_adherent'];
 				}	
 			}
 			return $id; 
@@ -174,47 +199,71 @@
 		}
 
 		public function getAllPreRegistration()
-				{
-					$pdo = databaseConnect();
+		{
+			$pdo = databaseConnect();
 
-					$id = PRE_INSCRIT;
-								
-					$q = $pdo->prepare('SELECT * FROM adherent AS ad 
-										INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
-										INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
-										WHERE s.id_statut = :id');
+			$id = PRE_INSCRIT;
+						
+			$q = $pdo->prepare('SELECT * FROM adherent AS ad 
+								INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
+								INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
+								WHERE s.id_statut = :id');
 
-					$q->bindParam(':id', $id);
-					$aObjects = array();
+			$q->bindParam(':id', $id);
+			$aObjects = array();
 
-					if($q->execute() != false) {
-						$aObjects = $q->fetchAll();	
-					}
+			if($q->execute() != false) {
+				$aObjects = $q->fetchAll();	
+			}
 
-					return $aObjects; 
-				}
+			return $aObjects; 
+		}
+
+
+
+		public function readIdByMail($sMail)
+		{
+			$pdo = databaseConnect();
+
+			$status = '';
+			$q = $pdo->prepare('SELECT id_adherent FROM adherent 
+								WHERE mail_adherent = :mail');
+
+			$q->bindParam(':mail', $sMail);
+
+			if($q->execute() != false) {
+				while ($row = $q->fetch()) {
+					$this->setId($row['id_adherent']);
+				} 
+			}
+		}
 
 
 		/*********************************************************************
 		*								UPDATE 								 *
 		*********************************************************************/
 
-		public function updateUser($sNickname, $sMail, $sOldMail) 
+		public function updateUser() 
 		{
  			$pdo = databaseConnect();
 			
-			$q = $pdo->prepare('UPDATE mod582_user_coment_add
-								SET nickname = :nickname,
-									mail = :mail,
-									pass = :pass
-								WHERE mail = :oldMail');
-
-			$sPassHash = password_hash($sPass, PASSWORD_DEFAULT);
-			$q->bindParam(':nickname', $sNickname);
-			$q->bindParam(':mail', $sMail);
-			$q->bindParam(':pass', $sPassHash);
-			$q->bindParam(':oldMail', $sOldMail);
-
+			$q = $pdo->prepare('UPDATE adherent
+								SET nom_adherent = :lastname,
+									prenom_adherent = :mail,
+									adresse_adherent = :mail,
+									cp_adherent = :pass
+									ville_adherent = :pass
+									mail_adherent = :pass
+									tel_adherent = :pass
+								WHERE id = :id');
+			
+			$q->bindParam(':nom', $lastname);
+			$q->bindParam(':prenom', $name);
+			$q->bindParam(':adresse', $address);
+			$q->bindParam(':cp', $cp);
+			$q->bindParam(':ville',$city);
+			$q->bindParam(':mail', $email);
+			$q->bindParam(':tel', $phone);
 			$q->execute();
 			
 			if($q->execute() != false) {
@@ -223,20 +272,18 @@
 
 		}
 
-
-
-		public function updatePreRegistrationStatus($nId)
+		public function updateStatus($nId, $nStatut)
 		{
-			$statut = INSCRIT;
 			$pdo = databaseConnect();
 			
 			$q = $pdo->prepare('UPDATE appartient
 								SET id_statut = :statut
 								WHERE id_adherent = :id');
 
-			$q->bindParam(':statut', $statut);
+			$q->bindParam(':statut', $nStatut);
 			$q->bindParam(':id', intval($nId));
-
+			var_dump($nId);
+			var_dump($nStatut);
 			if($q->execute() != false) {
 				header('Location:' . $_SERVER['PHP_SELF']);
 			}
