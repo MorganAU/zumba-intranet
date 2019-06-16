@@ -245,31 +245,34 @@
 
 		public function updateUser() 
 		{
+
  			$pdo = databaseConnect();
 			
 			$q = $pdo->prepare('UPDATE adherent
 								SET nom_adherent = :lastname,
-									prenom_adherent = :mail,
-									adresse_adherent = :mail,
-									cp_adherent = :pass
-									ville_adherent = :pass
-									mail_adherent = :pass
-									tel_adherent = :pass
+									prenom_adherent = :prenom,
+									adresse_adherent = :madresseail,
+									cp_adherent = :cp,
+									ville_adherent = :ville,
+									mail_adherent = :mail,
+									tel_adherent = :tel
 								WHERE id = :id');
+			var_dump("fqegklqhzgmleghmzoieghmoqzighqzelqzhmhp");
+			die();
 			
-			$q->bindParam(':nom', $lastname);
-			$q->bindParam(':prenom', $name);
-			$q->bindParam(':adresse', $address);
-			$q->bindParam(':cp', $cp);
-			$q->bindParam(':ville',$city);
-			$q->bindParam(':mail', $email);
-			$q->bindParam(':tel', $phone);
-			$q->execute();
+			$q->bindParam(':nom', $this->getNom());
+			$q->bindParam(':prenom', $this->getPrenom());
+			$q->bindParam(':adresse', $this->getAdresse());
+			$q->bindParam(':cp', $this->getCp());
+			$q->bindParam(':ville', $this->getVille());
+			$q->bindParam(':mail', $this->getMail());
+			$q->bindParam(':tel', $this->getTel());
 			
 			if($q->execute() != false) {
-						$aObjects = $q->fetchAll();	
+				header('Location:' . $_SERVER['PHP_SELF']);
+			} else {
+				errorDatabase($q);
 			}
-
 		}
 
 		public function updateStatus($nId, $nStatut)

@@ -270,7 +270,6 @@
 			
 			// Si un bouton est pressé
 			if (isset($_POST['id'])) {
-				$_SESSION['data'] = $aData[$i];
 				// Récupération de l'id pour lequel le bouton a été pressé
 				if ($aData[$i]['id_adherent'] == $_POST['id']) {
 					// Utilisation de la fonction du bouton
@@ -338,6 +337,8 @@
 	// Code HTML pour la page de modification d'adhérent
 	function updateMemberPage()
 	{
+		unset($_POST['buttons_form']);
+
 		$page = '<h1>Formulaire de modification de membre</h1>';
 			$page .= updateMemberForm();
 			$page .= '
@@ -397,6 +398,8 @@
 				</div>
 				<div>
 					<input class="user-input" type="submit" name="buttons_form" value="Modifier" />
+					<input type="hidden" name="mail" value="' .  $adherent->getMail() . '" />
+					<input type="hidden" name="test" value="1" />
 				</div>
 			</form>
 			<form action="#" method="post">

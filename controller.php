@@ -165,11 +165,15 @@
 	function updateMemberSwitchPage()
 	{
 		$page = '';
+		$test = 0;
+		if (isset($_POST['test'])) {
+			$test = $_POST['test'];
+		}
 
 		if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == "Modifier") {
+			if ($_POST['buttons_form'] == "Modifier" && $test == 0) {
 				$page = updateMemberPage();
-			} else if ($_POST['buttons_form'] == "Modifier") {
+			} else if ($_POST['buttons_form'] == "Modifier" && $test == '1') {
 				updateMemberButton();
 			} else {
 				$page = membersList();
@@ -185,12 +189,15 @@
 
 	function updateMemberButton()
 	{
+		echo 'parare';
 		$page = '';
 		$exist = null;
-		if (isset($_POST['add-user-button'])) {
-			if ($_POST['add-user-button'] == 'Valider') {
+		if (isset($_POST['buttons_form'])) {
+			echo 'patate';
+			if ($_POST['buttons_form'] == 'Modifier') {
 				$currentAdherent  = new Adherent();
-				$exist = $currentAdherent->freeMail($_POST['email']);
+
+				//$exist = $currentAdherent->freeMail($_POST['email']);
 				if ($exist === null) {
 					$currentAdherent->setNom($_POST['lastname']);
 					$currentAdherent->setPrenom($_POST['name']);
@@ -199,8 +206,8 @@
 					$currentAdherent->setVille($_POST['city']);
 					$currentAdherent->setMail($_POST['email']);
 					$currentAdherent->setTel($_POST['phone']);
-					var_dump($currentAdherent);
 					$currentAdherent->updateUser();
+					var_dump("zefgzegzg");
 					$page = 'L\'utilisateur a bien été mis à jour.';
 				} else {
 					$page = 'Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.';
