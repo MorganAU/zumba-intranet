@@ -2,8 +2,8 @@
 	/** Liste des fonctions pour gérer les pages HTML en fonction de là où est l'utilisateur 
 	*	menuButton($nStatut) ---------------> Code HTML pour les trois boutons du menu
 	*	displayReservationsPage() ----------> Code HTML pour la page des réservations
-	*	displayMembersPage() ---------------> Code HTML pour la page des des adhérents
-	*	displayUsersPage() -----------------> Code HTML pour la page des des utilisateurs
+	*	displayMembersPage() ---------------> Code HTML pour la page des adhérents
+	*	displayUsersPage() -----------------> Code HTML pour la page des utilisateurs
 	*	asideMembers() ---------------------> Code HTML pour l'aside quand on est sur la page des adhérents
 	*	membersList() ----------------------> Code HTML pour la liste des membres
 	*	sendMail($aUser) -------------------> Code affichant le texte après clique sur le bouton d'envoi de mail en attendant d'un réel envoie !!!!!!!!!!!!!!!!!!!
@@ -11,14 +11,48 @@
 	*	tablePattern($aData) ---------------> Code pour afficher un tableau contentant des données d'utilisateurs
 	*	displayButtons($nIdButton, $sNameButton, $nIdAdherent, $sMailAdherent) -> Code HTML pour certain boutons de l'aside
 	*	addMember() ------------------------> Code HTML pour la page d'ajout d'adhérent
-	*	updateMemberPage() --------> Code HTML pour la page de modification d'adhérent
-	*	memberForm() --------> Code HTML pour la construction du formulaire
-	*/
+	*	updateMemberPage() -----------------> Code HTML pour la page de modification d'adhérent
+	*	addForm() --------------------------> Code HTML pour la construction du formulaire d'ajout
+	**/
+
 
 	// Code HTML pour les trois boutons du menu 
 	function menuButton($nStatut)
 	{
 		$nav = '
+			<ul class="nav nav-tabs">
+ 				<li class="nav-item">
+ 				  	<form method="post" action="#">
+						<input type="submit" class="menu-buttons" name="menu_button" value="Réservations" />
+					</form>
+ 				</li>
+ 				<li class="nav-item">
+ 				  	<form method="post" action="#">
+						<input type="submit" class="menu-buttons" name="menu_button" value="Adhérents" />
+					</form>
+ 				</li>';
+
+ 				// Si c'est le président qui est connecté on ajoute le troisième bouton
+				if ($nStatut == PRESIDENT) {
+				 	$nav .= '
+ 						<li class="nav-item">
+				 			<form method="post" action="#">
+								<input type="submit" class="menu-buttons" name="menu_button" 		value="Utilisateurs" />
+							</form>
+						</li>';
+				}
+
+		$nav .= '</ul>';
+
+
+
+
+
+ 		/*'<li class="nav-item"> 
+ 				  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
+ 				</li>
+			<ul>
+
 			<div class="nav-button">
 		 		<form method="post" action="#">
 					<input type="submit"  class="menu-buttons" name="menu_button" value="Réservations" />
@@ -38,7 +72,7 @@
 						<input type="submit" class="menu-buttons" name="menu_button" value="Utilisateurs" />
 					</form>
 				</div>';
-		}
+		}*/
 		return $nav;
 
 	}
@@ -94,29 +128,34 @@
 	{
 		// Page des utilisateurs
 		$page = '
-			<form action="#" method="post">
+			<form action="#" method="post" onsubmit="return verifAllForm()">
 				<div class="user-div">
 					<label class="user-label" for="lastname">Nom de famille</label><br />
-					<input  type="text" name="lastname" placeholder="Nom" /><br />
+					<input type="text" class="add-user-input" name="lastname" placeholder="Nom" minlength="2" maxlength="18" onblur="verifInputText(this)" required /><br />
+					<p class="hidden" name="lastname"></p>
 					<label class="user-label" for="name">Prénom</label><br />				
-					<input type="text" name="name" placeholder="Prénom" />
+					<input type="text" class="add-user-input" name="name" placeholder="Prénom" minlength="2" maxlength="18" onblur="verifInputText(this)" required />
+					<p class="hidden" name="name"></p>
 				</div>				
 				<div class="user-div">
 					<label class="user-label" for="mail">Email</label><br />
-					<input type="text" name="email" placeholder="Email" /><br />
-					<label class="user-label" for="tempPass">Mot de passe provisoire</label><br />
-					<input type="text" name="tempPass" placeholder="Mot de passe provisoire" />
+					<input type="email" class="add-user-input" name="email" placeholder="Adresse mail" minlength="6" maxlength="75"  onblur="verifInputText(this)" required /><br />
+					<p class="hidden" name="email"></p>
+					<label class="user-label" for="phone">Téléphone</label><br />				
+					<input type="text" class="add-user-input" name="phone" placeholder="Téléphone" minlength="10" maxlength="10"  onblur="verifInputText(this)" required />
+					<p class="hidden" name="phone"></p>
 				</div>
 				<div>
-					<select class="user-input" name="statut">
-						<option value="">--Choississez un rôle--</option>
-						<option value="secretary">Secrétaire</option>
-						<option value="instructor">Professeur</option>
-						<option value="president">Président</option>
+					<select class="add-user-input" name="status" onchange="verifInputText(this)">
+						<option value=0>--Choississez un rôle--</option>
+						<option value=3>Secrétaire</option>
+						<option value=4>Professeur</option>
+						<option value=5>Président</option>
 					</select>
+					<p class="hidden" name="status"></p>
 				</div>
 				<div>
-					<input class="user-input" type="submit" value="Valider" />
+					<input class="user-input" type="submit" name="add-user-button" value="Valider" />
 				</div>
 			</form>
 			<div>
@@ -133,6 +172,14 @@
 				asideButtons[0].setAttribute("class", "hidden");
 				section[0].setAttribute("class", "section-without-aside");
 			</script>';
+
+
+			// Si le bouton Valider est pressé
+		if (isset($_POST['add-user-button'])) {
+			if ($_POST['add-user-button'] == 'Valider') {
+				$page .= addUsersButton();
+			}	
+		}
 
 		return $page;
 
@@ -201,6 +248,10 @@
 	
 		return $text;
 	}
+
+
+
+
 
 
 	// Code HTML pour la liste des pré-inscrits
@@ -313,7 +364,7 @@
 	function addMember()
 	{
 		$page = '<h1>Formulaire d\'ajout de membre</h1>';
-		$page .= addMemberForm();
+		$page .= addForm();
 	
 		// Code JavaScript pour les boutons de l'aside
 		$page .= '
@@ -323,9 +374,9 @@
 				</script>';
 
 		// Si le bouton Valider est pressé
-		if (isset($_POST['add-user-button'])) {
-			if ($_POST['add-user-button'] == 'Valider') {
-				$page .= addMembersButton();
+		if (isset($_POST['buttons_form'])) {
+			if ($_POST['buttons_form'] == 'Valider') {
+				$page .= addUsersButton();
 			}	
 		}
 
@@ -340,32 +391,37 @@
 		unset($_POST['buttons_form']);
 
 		$page = '<h1>Formulaire de modification de membre</h1>';
-			$page .= updateMemberForm();
+			$page .= addForm();
 			$page .= '
 					<script>
 						var asideButtons = document.getElementsByClassName("aside-button");
 						asideButtons[3].id= "active";
 					</script>';
-
-	
-
-	
-			/*if (isset($_POST['return'])) {
-				if ($_POST['return'] == 'Retour') {
-					$page .= aside_user_button_switch();
-				}
-			}*/
 	
 			return $page;
 	
 	}
 
 
-	// Code HTML pour la construction du formulaire
-	function updateMemberForm()
+	// Code HTML pour la construction du formulaire d'ajout
+	function addForm()
 	{
 		$adherent = new Adherent();
-		$adherent->readAdherentByMail($_POST['mail']);
+		$buttonValue = '';
+		if (isset($_POST['aside_buttons']) && $_POST['aside_buttons'] == 'Ajouter un adhérent') {
+			$buttonValue = 'Valider';
+			$buttonName = 'add-user-button';
+			unset($_SESSION['button_page']);
+		} else if (isset($_SESSION['button_page']) && $_SESSION['button_page'] == 'Modifier') {
+			$buttonValue = 'Modifier';
+			$buttonName = 'buttons_form';
+		}
+
+	
+		if (isset($_POST['mail'])) {
+			$adherent->setMail($_POST['mail']);
+			$adherent->readAdherentByMail();
+		}
 
 		$form = '
 			<form action="#" method="post" onsubmit="return verifAllForm()">
@@ -397,59 +453,29 @@
 					<p class="hidden" name="phone"></p>					
 				</div>
 				<div>
-					<input class="user-input" type="submit" name="buttons_form" value="Modifier" />
-					<input type="hidden" name="mail" value="' .  $adherent->getMail() . '" />
-					<input type="hidden" name="test" value="1" />
-				</div>
-			</form>
-			<form action="#" method="post">
-				<input class="user-input" type="submit" name="return" value="Retour" />
-			</form>
-		';
+					<input class="user-input" type="submit" name="buttons_form" value="' . $buttonValue . '" />
+					<input type="hidden" name="emailTemp" value="' .  $adherent->getMail() . '" />
+					<input type="hidden" name="idTemp" value="' .  $adherent->getId() . '" />
+					<input type="hidden" name="test" value="1" />';
 
-		return $form;
-	}
+		if (isset($_POST['aside_buttons'])) {
+			if ($_POST['aside_buttons'] == 'Ajouter un adhérent') {
+				$form .= '<input type="hidden" name="aside_buttons" value="Ajouter un adhérent" />';
+			}	
+		}
 
+		$form.= '	
+				</div>
+			</form>';
 
-
-	// Code HTML pour la construction du formulaire
-	function addMemberForm()
-	{
-		$form = '
-			<form action="#" method="post" onsubmit="return verifAllForm()">
-				<div class="add-user-div">
-					<label class="user-label" for="lastname">Nom de famille</label><br />
-					<input type="text" class="add-user-input" name="lastname" placeholder="Nom" minlength="2" maxlength="18" onblur="verifInputText(this)" required /><br />
-					<p class="hidden" name="lastname"></p>
-					<label class="user-label" for="name">Prénom</label><br />				
-					<input type="text" class="add-user-input" name="name" placeholder="Prénom" minlength="2" maxlength="18" onblur="verifInputText(this)" required />
-					<p class="hidden" name="name"></p>
-				</div>
-				<div class="add-user-div">
-					<label class="user-label" for="address">Adresse</label><br />
-					<input type="text" class="add-user-input" name="address" placeholder="Adresse" minlength="6" maxlength="248"  onblur="verifInputText(this)" required /><br />
-					<p class="hidden" name="address"></p>					
-					<label class="user-label" for="cp">Code Postal</label><br />
-					<input type="text" class="add-user-input" name="cp" placeholder="Code Postal" minlength="5" maxlength="5"  onblur="verifInputText(this)" required />
-					<p class="hidden" name="cp"></p>					
-					<label class="user-label" for="city">Ville</label><br />
-					<input type="text" class="add-user-input" name="city" placeholder="Ville" minlength="4" maxlength="75"  onblur="verifInputText(this)" required />
-					<p class="hidden" name="city"></p>					
-				</div>
-				<div class="add-user-div">
-					<label class="user-label" for="mail">Email</label><br />
-					<input type="email" class="add-user-input" name="email" placeholder="Adresse mail" minlength="6" maxlength="75"  onblur="verifInputText(this)" required /><br />
-					<p class="hidden" name="email"></p>					
-					<label class="user-label" for="phone">Téléphone</label><br />				
-					<input type="text" class="add-user-input" name="phone" placeholder="Téléphone" minlength="10" maxlength="10"  onblur="verifInputText(this)" required />
-					<p class="hidden" name="phone"></p>					
-				</div>
-				<div>
-					<input class="user-input" type="submit" name="add-user-button" value="Valider" />
-				</div>
-			</form>
-		';
-	
+		if (isset($_SESSION['button_page'])) {
+			if ($_SESSION['button_page'] == 'Modifier') {
+				$form .= '
+					<form action="#" method="post">
+						<input class="user-input" type="submit" name="return" value="Retour" />
+					</form>';
+			}	
+		}	
 
 		return $form;
 	}

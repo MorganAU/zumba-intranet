@@ -1,8 +1,27 @@
+/** Liste des fonctions JavaScript pour les formulaires
+	*	verifInputText(input) --------------> Fonction pour vérifier les valeurs des input du formulaire
+	*	inputTestIsNumber(input) -----------> Fonction pour vérirfier si les valeurs saisies sont bien des chiffres
+	*	inputTestIsEmail(input) ------------> Fonction pour vérirfier si les valeurs saisies sont bien au format mail
+	*	inputTestSize(input) ---------------> Fonction pour vérirfier la taille des valeurs saisies
+	*	error(champ, erreur) ---------------> Fonction pour changer le bckground du champ si il y a une erreur
+	*	changeClassAndMessage(sName, sMessage, result)-> Fonction qui renvoie les messages d'erreur en fonction de celles-ci
+	*	getParaIndex(aElements, sName) -----> Fonction qui renvoie l'indes d'un élément
+	*	verifAllForm() ---------------------> Fonction pour vérifier tout le formulaire quand le bouton valoider est pressé
+	**/
+
+
+
 function verifInputText(input)
 {
 	var sizeText = input.value.length;
 	var name = input.name;
-	console.log(input.placeholder);
+
+
+	if (name == 'status') {
+		if (inputTestIsSelect(input) === false) {
+			return false;
+		}
+	}
 
 	if (sizeText != 0) {
 		if (name == 'phone' || name == 'cp') {
@@ -17,14 +36,15 @@ function verifInputText(input)
 			}
 		}
 
+		
 		if (inputTestSize(input) === false) {
 			return false;
 		} else {
 			return true;
 		}
 	}
-
 }
+
 
 
 function inputTestIsNumber(input)
@@ -32,31 +52,47 @@ function inputTestIsNumber(input)
 	var name = input.name;
 	var value = input.value;
 	var placeholder = input.placeholder;
-	var message = '';
 
 	if (isNaN(parseInt(value, 10))) {
-		message = 'Le format du champ "' + placeholder + '" est incorrecte.'
+		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
 		error(input, true);
 		changeClassAndMessage(name, message, true);
 		return false;
 	}
 }
+
+
 
 function inputTestIsEmail(input)
 {
 	var name = input.name;
 	var value = input.value;
 	var placeholder = input.placeholder;
-	var message = '';
-	var mailformat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+	var mailformat = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+
 	if(!value.match(mailformat))
 	{
-		message = 'Le format du champ "' + placeholder + '" est incorrecte.'
+		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
 		error(input, true);
 		changeClassAndMessage(name, message, true);
 		return false;
 	}
 }
+
+
+
+function inputTestIsSelect(select)
+{	console.log(select.value);
+	var name = select.name;
+	if (select.value == 0) {
+		message = 'Veuillez sélectionner un rôle.';
+		error(select, true);
+
+		changeClassAndMessage(name, message, true);
+		return false;
+	}
+}
+
 
 function inputTestSize(input)
 {
@@ -66,15 +102,14 @@ function inputTestSize(input)
 	var min = input.minLength;
 	var max = input.maxLength;
 	var placeholder = input.placeholder;
-	var message = '';
 
 	if (sizeText < min) {
-		message += 'Le champ "' + placeholder + '" est trop court.';
+		message = 'Le champ "' + placeholder + '" est trop court.';
 		error(input, true);
 		changeClassAndMessage(name, message, true);
 		return false;
 	} else if (sizeText > max) { 
-		message += 'Le champ "' + placeholder + '" est trop long.';
+		message = 'Le champ "' + placeholder + '" est trop long.';
 		error(input, true);
 		changeClassAndMessage(name, message, true);
 		return false;
@@ -99,6 +134,11 @@ function changeClassAndMessage(sName, sMessage, result)
 {
 	var para = '';
 	var index = 0;
+	console.log("name => " + sName);
+	console.log("message => " + sMessage);
+	console.log("result => " + result);
+
+
   	if (result) {
  		para = document.getElementsByClassName('hidden');
   		// Récupère l'index de l'élément p pointé
@@ -155,6 +195,12 @@ function verifAllForm()
 		var min = input[i].minLength;
 		var max = input[i].maxLength;
 
+		if (name == 'status') {
+			if (inputTestIsSelect(input[i]) === false) {
+				return false;
+			}
+		}
+
 		if (sizeText != 0) {
 			if (name == 'phone' || name == 'cp') {
 				if (inputTestIsNumber(input[i]) === false) {
@@ -177,4 +223,13 @@ function verifAllForm()
 	}
 	return true;
 
+}
+
+
+
+function getCurrentDate()
+{
+	
+
+	alert(text);
 }

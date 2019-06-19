@@ -119,32 +119,100 @@
 		if (isset($_POST['buttons_form'])) {
 			switch ($_POST['buttons_form']) {
 				case 'Envoyer un mail':
-					$page = sendMail($aUser);
+					$_SESSION['buttons_form'] = 'Envoyer un mail';
 					break;
 	
 				case 'Valider l\'inscription':
 					$page = validPreRegistration($aUser);
+					unset($_SESSION['buttons_form']);
 					break;
 				
 				case 'Ajouter un adhérent':
 					$page = addMember();
+					unset($_SESSION['buttons_form']);
 					break;
 				
 				case 'Modifier':
 					$page = updateMemberSwitchPage();
+					unset($_SESSION['buttons_form']);
 					break;
 				
-				case 'Supprimer un adhérent':
-					$page = membersList();
-					break;
+				case 'Supprimer':
+					$page = deleteMember($aUser);
+						unset($_SESSION['buttons_form']);
+				break;
 				
 				default:
-					$page = membersList();
+					$page = '<h1>Un problème est survenu</h1>';
 					break;
 			}
 		}
-	
-	
+
+		if (isset($_SESSION['buttons_form'])) {
+			switch ($_SESSION['buttons_form']) {
+				case 'Envoyer un mail':
+					$page = sendMail($aUser);
+					break;
+
+			}
+		}
+		return $page;
+	}
+
+
+
+	function addUsersButton()
+	{
+		$page = '';
+		$post = '';
+		$exist = null;
+
+
+		if (isset($_POST['add-user-button'])) {
+			if ($_POST['add-user-button'] == 'Valider') {
+				$post = 'user';
+			}
+		} else if (isset($_POST['buttons_form'])) {
+			if ($_POST['buttons_form'] == 'Valider') {
+				$post = 'member';
+			}
+		}
+
+		if ($post != '') {
+			$new  = new Adherent();
+			$new  = new Adherent();
+			$new->setMail(strtolower($_POST['email']));
+			$exist = $new->freeMail();
+
+			if ($exist === null) {
+				$new->setNom($_POST['lastname']);
+				$new->setPrenom($_POST['name']);
+				$new->setMail(strtolower($_POST['email']));
+				$new->setTel($_POST['phone']);
+				$new->setDate(getCurrentDateTime());
+
+				if ($post == 'user') {
+					$new->setStatut(intval($_POST['status']));
+					$page = '<h3>L\'utilisateur a bien été créé. Pensez à lui envoyer un mail pour son mot de passe.</h3>';
+					$_SESSION['aside_buttons'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
+					$_SESSION['buttons_form'] = 'Valider l\'inscription';
+				}
+
+				if ($post == 'member') {
+					$new->setAdresse($_POST['address']);
+					$new->setCp($_POST['cp']);
+					$new->setVille($_POST['city']);
+					$page = '<h3>L\'adhérent a bien été pré-inscrit. Veuillez valider l\'inscritpion.<h3>';
+				}
+
+				$new->createUser();
+
+
+			} else {
+				$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.<h3>';
+			}
+		
+		}
 		return $page;
 	}
 		
@@ -160,8 +228,6 @@
 	
 	}
 
-
-
 	function updateMemberSwitchPage()
 	{
 		$page = '';
@@ -171,10 +237,10 @@
 		}
 
 		if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == "Modifier" && $test == 0) {
+			if ($_POST['buttons_form'] == "Modifier" && $test == '0') {
 				$page = updateMemberPage();
 			} else if ($_POST['buttons_form'] == "Modifier" && $test == '1') {
-				updateMemberButton();
+				$page = updateMemberButton();
 			} else {
 				$page = membersList();
 			}
@@ -189,33 +255,52 @@
 
 	function updateMemberButton()
 	{
-		echo 'parare';
 		$page = '';
 		$exist = null;
 		if (isset($_POST['buttons_form'])) {
-			echo 'patate';
 			if ($_POST['buttons_form'] == 'Modifier') {
 				$currentAdherent  = new Adherent();
 
-				//$exist = $currentAdherent->freeMail($_POST['email']);
+				if (strtolower($_POST['email']) != strtolower($_POST['emailTemp'])) {
+					$currentAdherent->setMail(strtolower($_POST['email']));
+					$exist = $currentAdherent->freeMail();
+					
+					if ($exist !== null) {
+						$page = 'Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.';
+						header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
+					}
+				} 	
+
 				if ($exist === null) {
 					$currentAdherent->setNom($_POST['lastname']);
 					$currentAdherent->setPrenom($_POST['name']);
 					$currentAdherent->setAdresse($_POST['address']);
 					$currentAdherent->setCp($_POST['cp']);
 					$currentAdherent->setVille($_POST['city']);
-					$currentAdherent->setMail($_POST['email']);
+					$currentAdherent->setMail(strtolower($_POST['email']));
 					$currentAdherent->setTel($_POST['phone']);
-					$currentAdherent->updateUser();
-					var_dump("zefgzegzg");
-					$page = 'L\'utilisateur a bien été mis à jour.';
-				} else {
-					$page = 'Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.';
+					$page .= 'L\'utilisateur a bien été mis à jour.';
+					$currentAdherent->updateUser($_POST['idTemp']);
 				}
 			}
 		}
 		return $page;
 	
+	}
+
+
+
+
+	function deleteMember($aUser) {
+		$adherent = new Adherent();
+
+		$adherent->setId($aUser['id_adherent']);
+		$page = '<h3>L\'utilisateur n°' . $aUser['id_adherent'] . ' => ' . $aUser['nom_adherent'] . ' ' . $aUser['prenom_adherent'] . ' a bien été supprimé.</h3>';
+		var_dump($page);
+		$adherent->deleteStatus();
+		$adherent->deleteMember();
+
+		return $page;
 	}
 
 
@@ -229,9 +314,18 @@
 	
 		for ( $i = 0; $i < $count; $i++ ) {
           $aAdherent[$i] += ['statut_adherent' => $adherent->readStatus($aAdherent[$i]['id_adherent'])];
-    		}
+    	}
 
 		return $aAdherent;
+	}
+
+
+	function getCurrentDateTime()
+	{
+		date_default_timezone_set('Europe/Paris');
+		$date = date("d-m-Y H:i");
+
+		return $date;
 	}
 
 
@@ -309,31 +403,7 @@
 
 
 
-	function addMembersButton()
-	{
-		$page = '';
-		$exist = null;
-		if (isset($_POST['add-user-button'])) {
-			if ($_POST['add-user-button'] == 'Valider') {
-				$newAdherent  = new Adherent();
-				$exist = $newAdherent->freeMail($_POST['email']);
-				if ($exist === null) {
-					$newAdherent->setNom($_POST['lastname']);
-					$newAdherent->setPrenom($_POST['name']);
-					$newAdherent->setAdresse($_POST['address']);
-					$newAdherent->setCp($_POST['cp']);
-					$newAdherent->setVille($_POST['city']);
-					$newAdherent->setMail($_POST['email']);
-					$newAdherent->setTel($_POST['phone']);
-					$page = 'L\'utilisateur a bien été pré-inscrit. Veuillez valider l\'inscritpion.';
-					$newAdherent->createUser();
-				} else {
-					$page = 'Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.';
-				}
-			}
-		}
-		return $page;
-	}
+	
 
 
 

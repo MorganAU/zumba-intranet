@@ -1,16 +1,19 @@
 <?php
-	include_once 'sql_connect.php';
+	/** Liste des méthodes de la classe adhérent
+	*	__construct() --------------> Fonction pour vérifier les valeurs des input du formulaire
+	*	createUser() ------------> Fonction pour vérirfier si les valeurs saisies sont bien au format mail
+	*	createStatus() ---------------> Fonction pour vérirfier la taille des valeurs saisies
+	*	readAdherentByMail() ---------------> Fonction pour changer le bckground du champ si il y a une erreur
+	*	changeClassAndMessage(sName, sMessage, result)-> Fonction qui renvoie les messages d'erreur en fonction de celles-ci
+	*	getParaIndex(aElements, sName) -----> Fonction qui renvoie l'indes d'un élément
+	*	verifAllForm() ---------------------> Fonction pour vérifier tout le formulaire quand le bouton valoider est pressé
+	**/
 
-	define('CREER_ADHERENT', 'INSERT INTO adherent (nom_adherent, 
-													prenom_adherent, 
-													adresse_adherent, 
-													cp_adherent, 
-													ville_adherent, 
-													mail_adherent,
-													tel_adherent, 
-													/*photo_adherent,*/  
-													date_adherent) 
-							  VALUES (:nom, :prenom, :adresse, :cp, :ville, :mail, :tel,/* :photo, */NOW())');
+
+
+
+	include_once 'sql_connect.php';
+	include_once 'request.php';
 
 	class Adherent 
 	{ 
@@ -30,6 +33,9 @@
 		public function __construct() 
 		{
  			$this->statut = 1;
+ 			$this->adresse = 'xxxxxx';
+			$this->cp = 'xxxxx';
+			$this->ville = 'xxxxxx';
 		}
  
 		/*********************************************************************
@@ -56,12 +62,12 @@
 			$q->bindParam(':mail', $email);
 			$q->bindParam(':tel', $phone);
 
-
-
 			if($q->execute() != false) {
-				$this->readIdByMail($this->getMail());
-				$this->createUserStatus(intval($this->getId()), $this->getStatut());
-				header('Location:' . $_SERVER['PHP_SELF']);
+				$this->readIdByMail();
+				$this->createStatus();
+				$_SESSION['aside_buttons'] = 'Voir les adhérents';
+				$_SESSION['button_page'] = 'Envoyer un mail';
+				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
 				errorDatabase($q);
 			}
@@ -69,16 +75,17 @@
 		}
 
 
-
-		public function createUserStatus($nId, $nStatus)
+		private function createStatus()
 		{
 			$pdo = databaseConnect();
 
-			$q = $pdo->prepare('INSERT INTO appartient (id_statut, id_adherent)
-								VALUES (:statut,:adherent )');
+			$status = $this->getStatut();
+			$id = $this->getId();
 
-			$q->bindParam(':statut', $nStatus);
-			$q->bindParam(':adherent', $nId);
+			$q = $pdo->prepare(CREER_STATUT);
+
+			$q->bindParam(':statut', $status);
+			$q->bindParam(':adherent', $id);
 
 			if($q->execute() === false) {
 				errorDatabase($q);
@@ -89,13 +96,15 @@
 		*								READ 								 *
 		*********************************************************************/
  
-		public function readAdherentByMail($sMail) 
+		public function readAdherentByMail() 
 		{
 			$pdo = databaseConnect();
 						
 			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
 
-			$q->bindParam(':mail', $sMail);
+			$email = $this->getMail();
+
+			$q->bindParam(':mail', $email);
 
 			if($q->execute() != false) {
 				while ($row = $q->fetch()) {
@@ -114,20 +123,23 @@
 			}
 		}
 
-		public function freeMail($sMail)
+		public function freeMail()
 		{
 			$pdo = databaseConnect();
 			$id = null;
 						
 			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
 
-			$q->bindParam(':mail', $sMail);
+			$email = $this->getMail();
+
+			$q->bindParam(':mail', $email);
+
 			if($q->execute() != false) {
-			var_dump('expression');
 				while ($row = $q->fetch()) {
 					$id = $row['id_adherent'];
 				}	
 			}
+
 			return $id; 
 		}
 
@@ -221,15 +233,15 @@
 
 
 
-		public function readIdByMail($sMail)
+		public function readIdByMail()
 		{
 			$pdo = databaseConnect();
+			$email = $this->getMail();
 
-			$status = '';
 			$q = $pdo->prepare('SELECT id_adherent FROM adherent 
 								WHERE mail_adherent = :mail');
 
-			$q->bindParam(':mail', $sMail);
+			$q->bindParam(':mail', $email);
 
 			if($q->execute() != false) {
 				while ($row = $q->fetch()) {
@@ -243,33 +255,40 @@
 		*								UPDATE 								 *
 		*********************************************************************/
 
-		public function updateUser() 
+		public function updateUser($nId) 
 		{
 
  			$pdo = databaseConnect();
 			
 			$q = $pdo->prepare('UPDATE adherent
-								SET nom_adherent = :lastname,
+								SET nom_adherent = :nom,
 									prenom_adherent = :prenom,
-									adresse_adherent = :madresseail,
+									adresse_adherent = :adresse,
 									cp_adherent = :cp,
 									ville_adherent = :ville,
 									mail_adherent = :mail,
 									tel_adherent = :tel
-								WHERE id = :id');
-			var_dump("fqegklqhzgmleghmzoieghmoqzighqzelqzhmhp");
-			die();
-			
-			$q->bindParam(':nom', $this->getNom());
-			$q->bindParam(':prenom', $this->getPrenom());
-			$q->bindParam(':adresse', $this->getAdresse());
-			$q->bindParam(':cp', $this->getCp());
-			$q->bindParam(':ville', $this->getVille());
-			$q->bindParam(':mail', $this->getMail());
-			$q->bindParam(':tel', $this->getTel());
+								WHERE id_adherent = :id');
+
+			$lastname = $this->getNom();
+			$name = $this->getPrenom();
+			$address = $this->getAdresse();
+			$cp = $this->getCp();
+			$city = $this->getVille();
+			$email = $this->getMail();
+			$phone = $this->getTel();
+
+			$q->bindParam(':id', $nId);
+			$q->bindParam(':nom', $lastname);
+			$q->bindParam(':prenom', $name);
+			$q->bindParam(':adresse', $address);
+			$q->bindParam(':cp', $cp);
+			$q->bindParam(':ville',$city);
+			$q->bindParam(':mail', $email);
+			$q->bindParam(':tel', $phone);
 			
 			if($q->execute() != false) {
-				header('Location:' . $_SERVER['PHP_SELF']);
+				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
 				errorDatabase($q);
 			}
@@ -285,10 +304,11 @@
 
 			$q->bindParam(':statut', $nStatut);
 			$q->bindParam(':id', intval($nId));
-			var_dump($nId);
-			var_dump($nStatut);
+
 			if($q->execute() != false) {
 				header('Location:' . $_SERVER['PHP_SELF']);
+			} else {
+				errorDatabase($q);
 			}
 		}
  
@@ -318,6 +338,46 @@
 		*								DELETE 								 *
 		*********************************************************************/
 
+		public function deleteMember() 
+		{
+ 			$pdo = databaseConnect();
+
+			$q = $pdo->prepare('DELETE FROM adherent 
+				 				WHERE id_adherent = :id');
+
+			$id = intval($this->getId());
+
+			$q->bindParam(':id', $id);
+			
+			if($q->execute() != false) {
+				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
+			} else {
+				errorDatabase($q);
+				die("adherent");
+			}
+
+		}
+
+		
+		public function deleteStatus() 
+		{
+ 			$pdo = databaseConnect();
+		
+			$q = $pdo->prepare('DELETE FROM appartient 
+				 				WHERE id_adherent = :id');
+
+			$id = intval($this->getId());
+
+			$q->bindParam(':id', $id);
+			
+			if($q->execute() === false) {
+				errorDatabase($q);
+				die("statut");
+			}
+
+		}
+
+		
 		public function deleteUser($nId) 
 		{
  			$pdo = databaseConnect();

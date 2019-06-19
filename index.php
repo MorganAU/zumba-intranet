@@ -8,5 +8,4 @@
 	require_once 'include/view-functions.php';	
 	require_once 'view.php';
 
-var_dump($_POST);
-var_dump($_SESSION);
+
