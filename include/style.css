@@ -1,102 +1,11 @@
-body {
-	margin: 0 auto;
-	margin-top: 5px;
-	text-align: center;
-	min-height: 100%;
-	width: 1300px;
+#active-button-aside {
+	color: #fff;
+  background-color: #545b62;
+  border-color: #4e555b;
 }
-header, aside, footer, section, nav {
-	border: solid 1px black;
-}
-header {
-	height: 200px;
-	background-color: #41DFE8;
-}
-nav {
-	margin: 5px auto 5px auto;
-	padding: 15px;
-	width: 900px;
-	background-color: #41DFE8;
-}
-aside {
-	min-width: 9%;
-	height: 600px;
-	float: left;
-	background-color: #B8FFD5;
-	display: visible;
-}
-.hidden {
-	display: none;
-}
-.display {
-	display: block;
-}
-section {
-	width: 86%;
-	height: 600px;
-	float: right;
-	display: inline-block;
-	background-color: #FFC5B8;
-	margin-bottom: 5px;
-}
-.section-without-aside {
-	width: 100%;
-}
-footer {
-	clear: both;
-	background-color: #B9A7E8;		
-}
-.nav-button {
-	display: inline-block;
-	min-width: 33%;
-}
-#active {
-	background-color: red;
-}
-.aside-form {
-	margin-top: 30px;
-}
-.aside-form input {
-	min-width: 100px;
-}
-.user-div {
-	display: inline-block;
-	width: 49%;
-}
-.add-user-div {
-	display: inline-block;
-	width: 30%;
-}
-.user-input {
-	margin-top: 30px;		
-}
-.user-label {
-	display: block;
-	margin-top: 30px;
-	font-weight: bold;		
-}
-#deconnection-button {
-	float: right;
-	margin-right: 25%;
-}
-#aside-deconnection-button {
-	margin-top: 300px;		
-}
-#div-img-party {
-	float: left;
-	width: 150px;
-	height: 150px;
-	background-color: green;
-	margin-left: 200px;
-}
-#div-nb-party {
-	float: right;
-	margin-right: 200px;
-}
-.style-table {
-	width: 100%;
-}
-.style-table, th, td {
-	border: 1px solid black;
-	text-align: center;
+
+#active-button-menu {
+	    color: #fff;
+    background-color: #007bff;
+    border-color: #007bff;
 }

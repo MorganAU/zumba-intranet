@@ -296,7 +296,6 @@
 
 		$adherent->setId($aUser['id_adherent']);
 		$page = '<h3>L\'utilisateur n°' . $aUser['id_adherent'] . ' => ' . $aUser['nom_adherent'] . ' ' . $aUser['prenom_adherent'] . ' a bien été supprimé.</h3>';
-		var_dump($page);
 		$adherent->deleteStatus();
 		$adherent->deleteMember();
 
@@ -382,7 +381,6 @@
 				$id_button = 0;
 				break;
 		}
-
 
 		$button = displayButtons($id_button, $name_button, $aUser['id_adherent'], $aUser['mail_adherent']);
 

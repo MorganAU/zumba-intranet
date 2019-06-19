@@ -19,60 +19,41 @@
 	// Code HTML pour les trois boutons du menu 
 	function menuButton($nStatut)
 	{
-		$nav = '
-			<ul class="nav nav-tabs">
- 				<li class="nav-item">
- 				  	<form method="post" action="#">
-						<input type="submit" class="menu-buttons" name="menu_button" value="Réservations" />
-					</form>
- 				</li>
- 				<li class="nav-item">
- 				  	<form method="post" action="#">
-						<input type="submit" class="menu-buttons" name="menu_button" value="Adhérents" />
-					</form>
- 				</li>';
+		$nav = ' 
+		<!-- Page Content -->
 
- 				// Si c'est le président qui est connecté on ajoute le troisième bouton
+		    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+		    	<button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
+
+		    	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+		          <span class="navbar-toggler-icon"></span>
+		   		</button>
+		    	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+		        	<ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+		            	<li class="nav-item active">
+		            	<form method="post" action="#">
+							<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" value="Réservations" />
+		            	</li>
+		            	<li class="nav-item">
+							<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" value="Adhérents" />
+						</form>
+		            	</li>';
+
+		        // Si c'est le président qui est connecté on ajoute le troisième bouton
 				if ($nStatut == PRESIDENT) {
 				 	$nav .= '
  						<li class="nav-item">
 				 			<form method="post" action="#">
-								<input type="submit" class="menu-buttons" name="menu_button" 		value="Utilisateurs" />
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" 		value="Utilisateurs" />
 							</form>
 						</li>';
 				}
 
-		$nav .= '</ul>';
-
-
-
-
-
- 		/*'<li class="nav-item"> 
- 				  <a class="nav-link disabled" href="#" tabindex="-1" aria-disabled="true">Disabled</a>
- 				</li>
-			<ul>
-
-			<div class="nav-button">
-		 		<form method="post" action="#">
-					<input type="submit"  class="menu-buttons" name="menu_button" value="Réservations" />
-				</form>
-			</div>
-			<div class="nav-button">
-		 		<form method="post" action="#">
-					<input type="submit" class="menu-buttons" name="menu_button" value="Adhérents" />
-				</form>
-			</div>';
-		
-		// Si c'est le président qui est connecté on ajoute le troisième bouton
-		if ($nStatut == PRESIDENT) {
-		 	$nav .= '
-		 		<div class="nav-button">
-		 			<form method="post" action="#">
-						<input type="submit" class="menu-buttons" name="menu_button" value="Utilisateurs" />
-					</form>
-				</div>';
-		}*/
+		$nav .= '
+		          	</ul>
+		        </div>
+		    </nav>';
+		    
 		return $nav;
 
 	}
@@ -94,12 +75,11 @@
 		// Code JavaScript pour les boutons et l'aside
 		$page .= '
 			<script>
-				var menuButtons = document.getElementsByClassName("menu-buttons");
-				var asideButtons = document.getElementsByTagName("aside");
-				var section = document.getElementsByTagName("section");
-				menuButtons[0].id= "active";
-				asideButtons[0].setAttribute("class", "hidden");
-				section[0].setAttribute("class", "section-without-aside");
+				var menuButtons = document.getElementsByClassName("btn btn-outline-primary btn-lg");
+				var toggleButton  = document.getElementById("menu-toggle");
+				menuButtons[0].id= "active-button-menu";
+				toggleButton.setAttribute("disabled","disabled");
+
 			</script>';
 
 		return $page;
@@ -115,8 +95,10 @@
 		// Code JavaScript pour les boutons
 		$page .= '
 			<script>
-				var menuButtons = document.getElementsByClassName("menu-buttons");
-				menuButtons[1].id= "active";
+				var menuButtons = document.getElementsByClassName("btn btn-outline-primary btn-lg");
+				var asideMenu = document.getElementsByClassName("d-flex toggled");
+				menuButtons[1].id= "active-button-menu";
+				asideMenu[0].className = "d-flex";
 			</script>';
 		
 		return $page;
@@ -165,12 +147,10 @@
 		// Code JavaScript pour les boutons et l'aside
 		$page .= '
 			<script>
-				var menuButtons = document.getElementsByClassName("menu-buttons");
-				var asideButtons = document.getElementsByTagName("aside");
-				var section = document.getElementsByTagName("section");
-				menuButtons[2].id= "active";
-				asideButtons[0].setAttribute("class", "hidden");
-				section[0].setAttribute("class", "section-without-aside");
+				var menuButtons = document.getElementsByClassName("btn btn-outline-primary btn-lg");
+				var toggleButton  = document.getElementById("menu-toggle");
+				menuButtons[2].id= "active-button-menu";
+				toggleButton.setAttribute("disabled","disabled");
 			</script>';
 
 
@@ -189,38 +169,54 @@
 	//Code HTML pour l'aside quand on est sur la page des adhérents
 	function asideMembers()
 	{
+		$count = numberOfPreRegistered();
+		$input = '';
+
+		if ($count == 0) {
+			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Pré-inscription (' . numberOfPreRegistered() . ')" disabled ="disabled" />';
+		} else {
+			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Pré-inscription (' . numberOfPreRegistered() . ')" />';
+		}
 		// Aside
 		$aside = '
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="submit" class="aside-button" name="aside_buttons" value="Voir les adhérents" />
-				</div>
-			</form>
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="submit" class="aside-button" name="aside_buttons" value="Pré-inscription (' . numberOfPreRegistered() . ')" />
-				</div>
-			</form>
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="submit" class="aside-button" name="aside_buttons" value="Ajouter un adhérent" />
-				</div>
-			</form>
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="submit" class="aside-button" name="aside_buttons" value="Modifier un adhérent" />
-				</div>
-			</form>
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="submit" class="aside-button" name="aside_buttons" value="Supprimer un adhérent" />
-				</div>
-			</form>
-			<form class="aside-form" method="post" action="#">
-				<div>	
-					<input type="button" name="aside_buttons" value="Déconnexion" />
-				</div>
-			</form>';
+				<!-- Sidebar -->
+			    <div class="bg-light border-right" id="sidebar-wrapper">
+		     	   	<div class="sidebar-heading">
+		     	   		<!--<script>
+							var maintenant=new Date();
+							var jour=maintenant.getDate();
+							var mois=maintenant.getMonth()+1;
+							var an=maintenant.getFullYear();
+							var heure = maintenant.getHours();
+							var min = maintenant.getMinutes();
+							var sec = maintenant.getSeconds();
+
+							if (mois < 10) {
+								document.write(jour, "/0", mois, "/", an);
+							}
+							else {
+								document.write(jour,"/",mois,"/",an);
+							}
+
+							if (min < 10) {
+								document.write("<br />", heure, ":0", min, ":", sec);
+							} else {
+								document.write("<br />", heure, ":", min, ":", sec);
+							}
+						</script>-->
+		     	   	</div>
+		      		<div class="list-group list-group-flush">
+		        		<form class="aside-form" method="post" action="#">
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Voir les adhérents" />' .
+							$input . '
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Ajouter un adhérent" />
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Modifier un adhérent" />
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Supprimer un adhérent" />
+							<input type="button" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Déconnexion" />
+						</form>
+		      		</div>
+		    	</div>
+		   		<!-- /#sidebar-wrapper -->';
 
 		return $aside;		
 	}
@@ -283,39 +279,48 @@
 		$c = count($aData);
 		
 		// Construction de l'en-tête du tableau
-		$page = '<table class="style-table">
+		$page = '
+			<div class"table-responsive">
+			<table class="table table-sm table-hover">
+				<thead>
 					<tr>
-						<th>Id</th>
-						<th>Nom</th>
-						<th>Prénom</th>
-						<th>Statut</th>
-						<th>Adresse</th>
-						<th>Code Postal</th>
-						<th>Ville</th>
-						<th>Téléphone</th>
-						<th>Mail</th>
-						<th>Photo</th>
-						<th>Date d\'inscription</th>
+						<th scope="col">Id</th>
+						<th scope="col">Nom</th>
+						<th scope="col">Prénom</th>
+						<th scope="col">Statut</th>
+						<th scope="col">Adresse</th>
+						<th scope="col">Code Postal</th>
+						<th scope="col">Ville</th>
+						<th scope="col">Téléphone</th>
+						<th scope="col">Mail</th>
+						<th scope="col">Photo</th>
+						<th scope="col">Date d\'inscription</th>
+					</tr>
+				</thead>
+				<tbody>
 						';
 		
+		if ($c == 0) {
+			buttonSwitch(0);
+		}
+
+
 		// Ajout des entrées
 		for ($i = 0 ; $i < $c ; $i++) {
 			$page .= '
-					</tr>
 					<tr>
-						<td>' . $aData[$i]['id_adherent'] . '</td>
-						<td>' . $aData[$i]['nom_adherent'] . '</td>
-						<td>' . $aData[$i]['prenom_adherent'] . '</td>
-						<td>' . $aData[$i]['statut_adherent'] . '</td>
-						<td>' . $aData[$i]['adresse_adherent'] . '</td>
-						<td>' . $aData[$i]['cp_adherent'] . '</td>
-						<td>' . $aData[$i]['ville_adherent'] . '</td>
-						<td>' . $aData[$i]['tel_adherent'] . '</td>
-						<td>' . $aData[$i]['mail_adherent'] . '</td>
-						<td>' . $aData[$i]['photo_adherent'] . '</td>
-						<td>' . newFormatDate($aData[$i]['date_adherent']) . '</td>
+						<th scope="row">' . $aData[$i]['id_adherent'] . '</th>
+						<td scope="row">' . $aData[$i]['nom_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['prenom_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['statut_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['adresse_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['cp_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['ville_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['tel_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['mail_adherent'] . '</td>
+						<td scope="row">' . $aData[$i]['photo_adherent'] . '</td>
+						<td scope="row">' . newFormatDate($aData[$i]['date_adherent']) . '</td>
 						';
-			
 			// Ajout des boutons en fonction de l'onglet sélectionné
 			$page .= buttonSwitch($aData[$i]);
 			
@@ -334,7 +339,7 @@
 			}
 			$page .= '</tr>';
 		}
-		$page .= '</table>';
+		$page .= '</tbody></table></div>';
 	
 		return $page;
 	}
@@ -352,8 +357,10 @@
 					</form>
 				</td>
 				<script>
-					var asideButtons = document.getElementsByClassName("aside-button");
-					asideButtons[' . $nIdButton . '].id= "active";
+					var asideButtons = document.getElementsByClassName("btn btn-outline-secondary btn-block");
+					asideButtons[' . $nIdButton . '].id= "active-button-aside";
+					console.log(' . $nIdButton . ');
+					console.log(asideButtons[' . $nIdButton . '].id);
 				</script>';
 
 		return $button;
@@ -369,8 +376,8 @@
 		// Code JavaScript pour les boutons de l'aside
 		$page .= '
 				<script>
-					var asideButtons = document.getElementsByClassName("aside-button");
-					asideButtons[2].id= "active";
+					var asideButtons = document.getElementsByClassName("btn btn-outline-secondary btn-block");
+					asideButtons[2].id= "active-button-aside";
 				</script>';
 
 		// Si le bouton Valider est pressé
@@ -394,7 +401,7 @@
 			$page .= addForm();
 			$page .= '
 					<script>
-						var asideButtons = document.getElementsByClassName("aside-button");
+						var asideButtons = document.getElementsByClassName("list-group-item list-group-item-action bg-light");
 						asideButtons[3].id= "active";
 					</script>';
 	
