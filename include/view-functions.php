@@ -2,7 +2,6 @@
 	/** Liste des fonctions pour gérer les pages HTML en fonction de là où est l'utilisateur 
 	*	menuButton($nStatut) ---------------> Code HTML pour les trois boutons du menu
 	*	displayReservationsPage() ----------> Code HTML pour la page des réservations
-	*	displayMembersPage() ---------------> Code HTML pour la page des adhérents
 	*	displayUsersPage() -----------------> Code HTML pour la page des utilisateurs
 	*	asideMembers() ---------------------> Code HTML pour l'aside quand on est sur la page des adhérents
 	*	membersList() ----------------------> Code HTML pour la liste des membres
@@ -32,10 +31,10 @@
 		        	<ul class="navbar-nav ml-auto mt-2 mt-lg-0">
 		            	<li class="nav-item active">
 		            	<form method="post" action="#">
-							<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" value="Réservations" />
+							<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Réservations" />
 		            	</li>
 		            	<li class="nav-item">
-							<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" value="Adhérents" />
+							<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Adhérents" />
 						</form>
 		            	</li>';
 
@@ -44,7 +43,7 @@
 				 	$nav .= '
  						<li class="nav-item">
 				 			<form method="post" action="#">
-								<input type="submit" class="btn btn-outline-primary btn-lg" name="menu_button" 		value="Utilisateurs" />
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" 		value="Utilisateurs" />
 							</form>
 						</li>';
 				}
@@ -85,26 +84,6 @@
 		return $page;
 	}
 	
-
-	// Code HTML pour la page des des adhérents
-	function displayMembersPage()
-	{	
-		// Page des adhérents 		
-		$page = aside_user_button_switch();
-	
-		// Code JavaScript pour les boutons
-		$page .= '
-			<script>
-				var menuButtons = document.getElementsByClassName("btn btn-outline-primary btn-lg");
-				var asideMenu = document.getElementsByClassName("d-flex toggled");
-				menuButtons[1].id= "active-button-menu";
-				asideMenu[0].className = "d-flex";
-			</script>';
-		
-		return $page;
-	}
-	
-	
 	// Code HTML pour la page des des utilisateurs
 	function displayUsersPage()
 	{
@@ -137,7 +116,7 @@
 					<p class="hidden" name="status"></p>
 				</div>
 				<div>
-					<input class="user-input" type="submit" name="add-user-button" value="Valider" />
+					<input class="user-input" type="submit" name="button" value="Créer" />
 				</div>
 			</form>
 			<div>
@@ -155,8 +134,8 @@
 
 
 			// Si le bouton Valider est pressé
-		if (isset($_POST['add-user-button'])) {
-			if ($_POST['add-user-button'] == 'Valider') {
+		if (isset($_POST['button'])) {
+			if ($_POST['button'] == 'Créer') {
 				$page .= addUsersButton();
 			}	
 		}
@@ -173,9 +152,9 @@
 		$input = '';
 
 		if ($count == 0) {
-			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Pré-inscription (' . numberOfPreRegistered() . ')" disabled ="disabled" />';
+			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" disabled ="disabled" />';
 		} else {
-			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Pré-inscription (' . numberOfPreRegistered() . ')" />';
+			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" />';
 		}
 		// Aside
 		$aside = '
@@ -207,12 +186,12 @@
 		     	   	</div>
 		      		<div class="list-group list-group-flush">
 		        		<form class="aside-form" method="post" action="#">
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Voir les adhérents" />' .
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Voir les adhérents" />' .
 							$input . '
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Ajouter un adhérent" />
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Modifier un adhérent" />
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Supprimer un adhérent" />
-							<input type="button" class="btn btn-outline-secondary btn-block" name="aside_buttons" value="Déconnexion" />
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Ajouter un adhérent" />
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Modifier un adhérent" />
+							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Supprimer un adhérent" />
+							<input type="button" class="btn btn-outline-secondary btn-block" name="page_button" value="Déconnexion" />
 						</form>
 		      		</div>
 		    	</div>
@@ -269,12 +248,6 @@
 	// Code pour afficher un tableau contentant des données d'utilisateurs
 	function tablePattern($aData)
 	{
-		if (isset($_SESSION['aside_buttons'])) {
-			$tab = $_SESSION['aside_buttons'];
-		} else {
-			$tab = 'Voir les adhérents';
-		}
-		
 		// Récupération du nombre d'entrée du tableau
 		$c = count($aData);
 		
@@ -300,11 +273,6 @@
 				<tbody>
 						';
 		
-		if ($c == 0) {
-			buttonSwitch(0);
-		}
-
-
 		// Ajout des entrées
 		for ($i = 0 ; $i < $c ; $i++) {
 			$page .= '
@@ -333,34 +301,37 @@
 					unset($_POST['id']);
 				}
 			}	
-			if (isset($_POST['buttons_form'])) {
-				// Récupération de l'id pour lequel le bouton a été pressé
-				
-			}
 			$page .= '</tr>';
 		}
-		$page .= '</tbody></table></div>';
+		
+		$page .= '
+				</tbody>
+			</table>
+		</div>
+		<!--Code JavaScript pour les boutons-->
+		<script>
+			var menuButtons = document.getElementsByClassName("btn btn-outline-primary btn-lg");
+			menuButtons[1].id= "active-button-menu";
+		</script>';
 	
 		return $page;
 	}
 	
 
 	// Code HTML pour certain boutons de l'aside
-	function displayButtons($nIdButton, $sNameButton, $nIdAdherent, $sMailAdherent)
+	function displayButtons($nIdButton, $sNameButton, $sValueButton, $oUser)
 	{	
 		$button = '
 				<td>
 					<form method="post" action="#">
-						<input type="submit" name="buttons_form" value="' . $sNameButton . '" />
-						<input type="hidden" name="id" value="' . $nIdAdherent . '" />
-						<input type="hidden" name="mail" value="' . $sMailAdherent . '" />
+						<input type="submit" name="' . $sNameButton . '" value="' . $sValueButton . '" />
+						<input type="hidden" name="id" value="' . $oUser->getId() . '" />
+						<input type="hidden" name="mail" value="' . $oUser->getMail() . '" />
 					</form>
 				</td>
 				<script>
 					var asideButtons = document.getElementsByClassName("btn btn-outline-secondary btn-block");
 					asideButtons[' . $nIdButton . '].id= "active-button-aside";
-					console.log(' . $nIdButton . ');
-					console.log(asideButtons[' . $nIdButton . '].id);
 				</script>';
 
 		return $button;
@@ -371,7 +342,7 @@
 	function addMember()
 	{
 		$page = '<h1>Formulaire d\'ajout de membre</h1>';
-		$page .= addForm();
+		$page .= addForm('Valider');
 	
 		// Code JavaScript pour les boutons de l'aside
 		$page .= '
@@ -381,8 +352,8 @@
 				</script>';
 
 		// Si le bouton Valider est pressé
-		if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == 'Valider') {
+		if (isset($_POST['button'])) {
+			if ($_POST['button'] == 'Valider') {
 				$page .= addUsersButton();
 			}	
 		}
@@ -395,10 +366,8 @@
 	// Code HTML pour la page de modification d'adhérent
 	function updateMemberPage()
 	{
-		unset($_POST['buttons_form']);
-
 		$page = '<h1>Formulaire de modification de membre</h1>';
-			$page .= addForm();
+			$page .= addForm('Modifier');
 			$page .= '
 					<script>
 						var asideButtons = document.getElementsByClassName("list-group-item list-group-item-action bg-light");
@@ -411,19 +380,9 @@
 
 
 	// Code HTML pour la construction du formulaire d'ajout
-	function addForm()
+	function addForm($sButtonValue)
 	{
 		$adherent = new Adherent();
-		$buttonValue = '';
-		if (isset($_POST['aside_buttons']) && $_POST['aside_buttons'] == 'Ajouter un adhérent') {
-			$buttonValue = 'Valider';
-			$buttonName = 'add-user-button';
-			unset($_SESSION['button_page']);
-		} else if (isset($_SESSION['button_page']) && $_SESSION['button_page'] == 'Modifier') {
-			$buttonValue = 'Modifier';
-			$buttonName = 'buttons_form';
-		}
-
 	
 		if (isset($_POST['mail'])) {
 			$adherent->setMail($_POST['mail']);
@@ -460,15 +419,13 @@
 					<p class="hidden" name="phone"></p>					
 				</div>
 				<div>
-					<input class="user-input" type="submit" name="buttons_form" value="' . $buttonValue . '" />
+					<input class="user-input" type="submit" name="button" value="' . $sButtonValue . '" />
 					<input type="hidden" name="emailTemp" value="' .  $adherent->getMail() . '" />
 					<input type="hidden" name="idTemp" value="' .  $adherent->getId() . '" />
 					<input type="hidden" name="test" value="1" />';
 
-		if (isset($_POST['aside_buttons'])) {
-			if ($_POST['aside_buttons'] == 'Ajouter un adhérent') {
-				$form .= '<input type="hidden" name="aside_buttons" value="Ajouter un adhérent" />';
-			}	
+		if (isset($_POST['button'])) {
+			buttonProcess($adherent);
 		}
 
 		$form.= '	
@@ -479,7 +436,7 @@
 			if ($_SESSION['button_page'] == 'Modifier') {
 				$form .= '
 					<form action="#" method="post">
-						<input class="user-input" type="submit" name="return" value="Retour" />
+						<input class="user-input" type="submit" name="page_button" value="Retour" />
 					</form>';
 			}	
 		}	

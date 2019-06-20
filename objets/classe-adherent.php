@@ -65,8 +65,6 @@
 			if($q->execute() != false) {
 				$this->readIdByMail();
 				$this->createStatus();
-				$_SESSION['aside_buttons'] = 'Voir les adhérents';
-				$_SESSION['button_page'] = 'Envoyer un mail';
 				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
 				errorDatabase($q);
@@ -287,9 +285,7 @@
 			$q->bindParam(':mail', $email);
 			$q->bindParam(':tel', $phone);
 			
-			if($q->execute() != false) {
-				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
-			} else {
+			if($q->execute() === false) {
 				errorDatabase($q);
 			}
 		}

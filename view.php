@@ -32,7 +32,7 @@
 			<div id="page-content-wrapper">'
 				. menuButton(PRESIDENT) . '
 				<div class="container-fluid">' 
-				. display(PRESIDENT) . '
+				. switchPages(PRESIDENT) . '
 				</div>
 			</div>
 

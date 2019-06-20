@@ -16,130 +16,184 @@
 	**/
 
 	// Pages principales
-	function display($nStatut)
+	function switchPages($nStatut)
 	{
 		$section = '';
 
-		if (isset($_POST['menu_button'])) {
-   				if ($_POST['menu_button'] == 'Utilisateurs' && $nStatut == PRESIDENT) {
-   					$_SESSION['page'] = 'Utilisateurs';
-   				} else if ($_POST['menu_button'] == 'Adhérents') {
-   					$_SESSION['page'] = 'Adhérents';
-   					$_SESSION['aside_buttons'] = 'Voir les adhérents';
+		if (isset($_POST['page_button'])) {
+			switch ($_POST['page_button']) {
+				case 'Utilisateurs':
+					if ($nStatut == PRESIDENT) {
+   						$_SESSION['page'] = 'Utilisateurs';
+					}
+					break;
+
+				case 'Adhérents':
+				case 'Voir les adhérents':
+   					$_SESSION['page'] = 'Voir les adhérents';
    					$_SESSION['button_page'] = 'Envoyer un mail';
-   				} else {
-   					$_SESSION['page'] = 'Réservation';	
+					break;
+				
+				case 'Réservations':
+   					$_SESSION['page'] = 'Réversations';
+					break;
+
+				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
+					$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
+					$_SESSION['button_page'] = 'Valider l\'inscription';
+					break;
+
+				case 'Ajouter un adhérent':
+					$_SESSION['page'] = 'Ajouter un adhérent';
+					$_SESSION['button_page'] = 'Valider';
+					break;
+
+				case 'Modifier un adhérent':
+				case 'Retour':
+					$_SESSION['page'] = 'Modifier un adhérent';
+					$_SESSION['button_page'] = 'Modifier';
+					break;
+					
+				case 'Modifier':
+				case 'Retour':
+					$_SESSION['page'] = 'Formulaire de modification';
+					$_SESSION['button_page'] = 'Modifier';
+					break;
+					
+				case 'Supprimer un adhérent':
+					$_SESSION['page'] = 'Supprimer un adhérent';
+					$_SESSION['button_page'] = 'Supprimer';
+					break;
+					
+				default:
+   					$_SESSION['page'] = 'Réversations';
+					break;
+					
 			}
 		}
 
-		if (isset($_SESSION['page'])) {
-			if ($_SESSION['page'] == 'Utilisateurs') {
-				$section = displayUsersPage();
-			} else if ($_SESSION['page'] == 'Adhérents') {
-				$section = displayMembersPage();				
-			} else {
-				$section = displayReservationsPage();				
-			}
-		}
+		$section = display();
 
 		return $section;
-
 	}
 
 
-	// Boutons de l'aside
-	function aside_user_button_switch()
+
+	function display()
 	{
-
-			if (isset($_POST['aside_buttons'])) {
-				switch ($_POST['aside_buttons']) {
-					case 'Voir les adhérents':
-						$_SESSION['aside_buttons'] = 'Voir les adhérents';
-						break;
-	
-					case 'Pré-inscription (' . numberOfPreRegistered() . ')':
-						$_SESSION['aside_buttons'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
-						break;
-					
-					case 'Ajouter un adhérent':
-						$_SESSION['aside_buttons'] = 'Ajouter un adhérent';
-						break;
-					
-					case 'Modifier un adhérent':
-					case 'Retour':
-						$_SESSION['aside_buttons'] = 'Modifier un adhérent';
-						break;
-					
-					case 'Supprimer un adhérent':
-						$_SESSION['aside_buttons'] = 'Supprimer un adhérent';
-						break;
-
-					default:
-						$_SESSION['aside_buttons'] = 'Voir les adhérents';
-						break;
-				}
-			}
-			
-			if (isset($_SESSION['aside_buttons'])) {
-				switch ($_SESSION['aside_buttons']) {
-					case 'Voir les adhérents':
-						$page = membersList();
-						break;
-	
-					case 'Pré-inscription (' . numberOfPreRegistered() . ')':
-						$page = preRegistrationList();
-						break;
-					
-					case 'Ajouter un adhérent':
-						$page = addMember();
-						break;
-					
-					case 'Modifier un adhérent':
-						$page = updateMemberSwitchPage();
-						break;
-					
-					case 'Supprimer un adhérent':
-						$page = membersList();
-						break;
-					
-					default:
-						$page = membersList();
-						break;
-				}
-			}
-
-
-		return $page;
-	}
-
-
-	// Gère les boutons des tableaux et leur finctions
-	function buttonProcess($aUser)
-	{	
-		if (isset($_POST['buttons_form'])) {
-			switch ($_POST['buttons_form']) {
-				case 'Envoyer un mail':
-					$_SESSION['buttons_form'] = 'Envoyer un mail';
+		if (isset($_SESSION['page'])) {
+			switch ($_SESSION['page']) {
+				case 'Utilisateurs':
+					$section = displayUsersPage();
 					break;
-	
-				case 'Valider l\'inscription':
-					$page = validPreRegistration($aUser);
-					unset($_SESSION['buttons_form']);
+				
+				case 'Voir les adhérents':
+					$section = membersList();		
+					break;
+				
+				case 'Réversations':
+					$section = displayReservationsPage();	
+					break;
+
+				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
+					$section = preRegistrationList();
 					break;
 				
 				case 'Ajouter un adhérent':
-					$page = addMember();
-					unset($_SESSION['buttons_form']);
+					$section = addMember();
+					break;
+
+				case 'Modifier un adhérent':
+					$section = membersList();
+					break;
+					
+				case 'Formulaire de modification':
+					$section = addForm("Modifier");
+					break;
+					
+				case 'Supprimer un adhérent':
+					$section = membersList();
+					break;
+					
+				default:
+					$section = displayReservationsPage();	
+					break;
+			}
+
+		}
+
+		return $section;
+	}
+
+
+
+	function buttonSwitch($aUser)
+	{
+		$adherent = arrayToObject($aUser);
+
+		switch ($_SESSION['button_page']) {
+			case 'Envoyer un mail':
+				$name_button = 'button';
+				$value_button = $_SESSION['button_page'];
+				$id_button = 0;
+				break;
+			
+			case 'Valider l\'inscription':
+				$name_button = 'button';
+				$value_button = $_SESSION['button_page'];
+				$id_button = 1;
+				break;
+			
+			case 'Modifier':
+				$name_button = 'page_button';
+				$value_button = $_SESSION['button_page'];
+				$id_button = 3;
+				break;
+			
+			case 'Supprimer':
+				$name_button = 'button';
+				$value_button = $_SESSION['button_page'];
+				$id_button = 4;
+				break;
+			
+			default:
+				$name_button = 'button';
+				$value_button = $_SESSION['button_page'];
+				$id_button = 0;
+				break;
+		}
+
+		$button = displayButtons($id_button, $name_button, $value_button, $adherent);
+
+		return $button;
+
+	}
+
+
+	// Gère les boutons des tableaux et leur fonction
+	function buttonProcess($aUser)
+	{	
+		if (isset($_POST['button'])) {
+			switch ($_POST['button']) {
+	
+				case 'Envoyer un mail':
+					$page = sendMail($aUser);
+					break;
+				
+				case 'Valider l\'inscription':
+					$page = validPreRegistration($aUser);
+					break;
+				
+				case 'Valider':
+					$page = addUsersButton();
 					break;
 				
 				case 'Modifier':
-					$page = updateMemberSwitchPage();
-					unset($_SESSION['buttons_form']);
+					$page = updateMemberButton();
 					break;
 				
 				case 'Supprimer':
 					$page = deleteMember($aUser);
-						unset($_SESSION['buttons_form']);
 				break;
 				
 				default:
@@ -148,8 +202,8 @@
 			}
 		}
 
-		if (isset($_SESSION['buttons_form'])) {
-			switch ($_SESSION['buttons_form']) {
+		if (isset($_SESSION['button'])) {
+			switch ($_SESSION['button']) {
 				case 'Envoyer un mail':
 					$page = sendMail($aUser);
 					break;
@@ -168,48 +222,46 @@
 		$exist = null;
 
 
-		if (isset($_POST['add-user-button'])) {
-			if ($_POST['add-user-button'] == 'Valider') {
+		if (isset($_POST['button'])) {
+			if ($_POST['button'] == 'Créer') {
 				$post = 'user';
-			}
-		} else if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == 'Valider') {
+			} else if ($_POST['button'] == 'Valider') {
 				$post = 'member';
 			}
 		}
-
 		if ($post != '') {
-			$new  = new Adherent();
-			$new  = new Adherent();
-			$new->setMail(strtolower($_POST['email']));
-			$exist = $new->freeMail();
+			$newAdherent = new Adherent();
+
+			$newAdherent->setMail(strtolower($_POST['email']));
+			$exist = $newAdherent->freeMail();
 
 			if ($exist === null) {
-				$new->setNom($_POST['lastname']);
-				$new->setPrenom($_POST['name']);
-				$new->setMail(strtolower($_POST['email']));
-				$new->setTel($_POST['phone']);
-				$new->setDate(getCurrentDateTime());
+				$newAdherent->setNom($_POST['lastname']);
+				$newAdherent->setPrenom($_POST['name']);
+				$newAdherent->setMail(strtolower($_POST['email']));
+				$newAdherent->setTel($_POST['phone']);
+				$newAdherent->setDate(getCurrentDateTime());
 
 				if ($post == 'user') {
-					$new->setStatut(intval($_POST['status']));
+					$newAdherent->setStatut(intval($_POST['status']));
 					$page = '<h3>L\'utilisateur a bien été créé. Pensez à lui envoyer un mail pour son mot de passe.</h3>';
-					$_SESSION['aside_buttons'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
-					$_SESSION['buttons_form'] = 'Valider l\'inscription';
+					$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
+					$_SESSION['button'] = 'Valider l\'inscription';
 				}
 
 				if ($post == 'member') {
-					$new->setAdresse($_POST['address']);
-					$new->setCp($_POST['cp']);
-					$new->setVille($_POST['city']);
+					$newAdherent->setAdresse($_POST['address']);
+					$newAdherent->setCp($_POST['cp']);
+					$newAdherent->setVille($_POST['city']);
+
 					$page = '<h3>L\'adhérent a bien été pré-inscrit. Veuillez valider l\'inscritpion.<h3>';
 				}
-
-				$new->createUser();
-
-
+				$newAdherent->createUser();
+				$_SESSION['page'] = 'Voir les adhérents';
 			} else {
 				$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.<h3>';
+				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
+
 			}
 		
 		}
@@ -223,12 +275,12 @@
 		$adherent = new Adherent();
 		$int = intval($aUser['id_adherent'], 10);
 		$adherent->updateStatus($int, INSCRIT);
-		$_SESSION['aside_buttons'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
+		$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
 	
 	
 	}
 
-	function updateMemberSwitchPage()
+	/*function updateMemberSwitchPage()
 	{
 		$page = '';
 		$test = 0;
@@ -236,10 +288,10 @@
 			$test = $_POST['test'];
 		}
 
-		if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == "Modifier" && $test == '0') {
+		if (isset($_POST['button'])) {
+			if ($_POST['button'] == "Modifier" && $test == '0') {
 				$page = updateMemberPage();
-			} else if ($_POST['buttons_form'] == "Modifier" && $test == '1') {
+			} else if ($_POST['button'] == "Modifier" && $test == '1') {
 				$page = updateMemberButton();
 			} else {
 				$page = membersList();
@@ -250,15 +302,15 @@
 
 		return $page;
 	}
-
+*/
 
 
 	function updateMemberButton()
 	{
 		$page = '';
 		$exist = null;
-		if (isset($_POST['buttons_form'])) {
-			if ($_POST['buttons_form'] == 'Modifier') {
+		if (isset($_POST['button'])) {
+			if ($_POST['button'] == 'Modifier') {
 				$currentAdherent  = new Adherent();
 
 				if (strtolower($_POST['email']) != strtolower($_POST['emailTemp'])) {
@@ -266,8 +318,9 @@
 					$exist = $currentAdherent->freeMail();
 					
 					if ($exist !== null) {
-						$page = 'Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.';
-						header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
+						$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '</h3>.';
+						$_SESSION['page'] = 'Modifier un adhérent';
+						header ("Refresh: 0;URL=" . $_SERVER['PHP_SELF']);
 					}
 				} 	
 
@@ -279,8 +332,11 @@
 					$currentAdherent->setVille($_POST['city']);
 					$currentAdherent->setMail(strtolower($_POST['email']));
 					$currentAdherent->setTel($_POST['phone']);
-					$page .= 'L\'utilisateur a bien été mis à jour.';
+					$page .= '<h3>Mise à jour effectuée</h3>';
 					$currentAdherent->updateUser($_POST['idTemp']);
+					$_SESSION['page'] = 'Modifier un adhérent';
+					header ("Refresh: 0;URL=" . $_SERVER['PHP_SELF']);
+
 				}
 			}
 		}
@@ -329,64 +385,7 @@
 
 
 
-	function buttonSwitch($aUser)
-	{
-		if (isset($_POST['aside_buttons'])) {
-			switch ($_POST['aside_buttons']) {
-				case 'Voir les adhérents':
-					$_SESSION['button_page'] = 'Envoyer un mail';
-					break;
-				
-				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
-					$_SESSION['button_page'] = 'Valider l\'inscription';
-					break;
-				
-				case 'Modifier un adhérent':
-					$_SESSION['button_page'] = 'Modifier';
-					break;
-				
-				case 'Supprimer un adhérent':
-					$_SESSION['button_page'] = 'Supprimer';
-					break;
-				
-				default:
-					$_SESSION['button_page'] = 'Envoyer un mail';
-					break;
-			}
-		}
-
-		switch ($_SESSION['button_page']) {
-			case 'Envoyer un mail':
-				$name_button = $_SESSION['button_page'];
-				$id_button = 0;
-				break;
-			
-			case 'Valider l\'inscription':
-				$name_button = $_SESSION['button_page'];
-				$id_button = 1;
-				break;
-			
-			case 'Modifier':
-				$name_button = $_SESSION['button_page'];
-				$id_button = 3;
-				break;
-			
-			case 'Supprimer':
-				$name_button = $_SESSION['button_page'];
-				$id_button = 4;
-				break;
-			
-			default:
-				$name_button = $_SESSION['button_page'];
-				$id_button = 0;
-				break;
-		}
-
-		$button = displayButtons($id_button, $name_button, $aUser['id_adherent'], $aUser['mail_adherent']);
-
-		return $button;
-
-	}
+	
 
 
 
@@ -401,7 +400,23 @@
 
 
 
-	
+	function arrayToObject($aArray)
+	{
+		$object = new Adherent();
+
+		$object->setId($aArray['id_adherent']);
+		$object->setNom($aArray['nom_adherent']);
+		$object->setPrenom($aArray['prenom_adherent']);
+		$object->setAdresse($aArray['adresse_adherent']);
+		$object->setCp($aArray['cp_adherent']);
+		$object->setVille($aArray['ville_adherent']);
+		$object->setTel($aArray['tel_adherent']);
+		$object->setMail($aArray['mail_adherent']);
+		$object->setPhoto($aArray['photo_adherent']);
+		$object->setDate(newFormatDate($aArray['date_adherent']));
+
+		return $object;
+	}
 
 
 
