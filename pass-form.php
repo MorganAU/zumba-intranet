@@ -37,14 +37,43 @@
 					<div class="container-fluid">
 						<center>
 						<h1>Veuillez saisir votre mot de passe</h1><br /><br />
-						<form action="#" method="post" onsubmit="return verifAllForm()">
+						<table>
+							<tbody id="password-table">
+								<tr>
+									<td class="text-head">Majuscule</td>
+									<td id="rule-0" class="red">  </td>
+								</tr>
+								<tr>
+									<td class="text-head">Minuscule</td>
+									<td id="rule-1" class="red"></td>
+								</tr>
+								<tr>
+									<td class="text-head">Caractère spécial<br /></td>
+									<td id="rule-2" class="red"></td>
+									<td>!@#$%^&*_=+-</td>	
+								</tr>
+								<tr>
+									<td class="text-head">Chiffre</td>
+									<td id="rule-3" class="red">  </td>
+								</tr>
+								<tr>
+									<td class="text-head">Identiques</td>
+									<td id="same-pass" class="red">  </td>
+								</tr>
+								<tr>
+									<td class="text-head">Longueurs</td>
+									<td id="rule-4" class="red">  </td>
+									<td>12-36 caractères</td>	
+								</tr>
+							</tbody>
+						</table>
+						<form action="#" method="post" onsubmit="return verifSamePass()">
 								<label class="user-label" for="password">Mot de passe</label><br />
-								<input type="password" class="btn btn-outline-primary btn-lg" placeholder="Mot de passe" name="password" minlength="12" maxlength="36" size="40" onblur="verifInputText(this)" required /><br /><br />
-								<p class="hidden" name="password"></p>
+								<input type="password" class="btn-custom" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{12,36}$" placeholder="Mot de passe" name="password" minlength="12" maxlength="36" size="40" onkeyup="verifPassPattern(this)" required /><br /><br />
 								<label class="user-label" for="password-confirm">Confirmation du mot de passe</label><br />
-								<input type="password" class="btn btn-outline-primary btn-lg" placeholder="Vérifier le mot de passe" name="password-confirm" maxlength="36" size="40"  onblur="verifInputText(this)" required /><br /><br />
-								<p class="hidden" name="password-confirm"></p>
-								<input type="submit" class="btn btn-outline-primary btn-lg" name="submit" value="Valider l\'inscription" class="bouton">
+								<input type="password" class="btn-custom" placeholder="Vérifier le mot de passe" name="password-confirm" maxlength="36" size="40" onkeyup="verifSamePass()" required /><br /><br />
+								<p class="hidden" name="password"></p>
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="submit" value="Valider le mot de passe">
 						</form>
 						</center>
 					</div>

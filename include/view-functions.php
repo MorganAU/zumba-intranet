@@ -18,7 +18,7 @@
 	// Code HTML pour les trois boutons du menu 
 	function menuButton($nStatut)
 	{
-		if ($_SESSION['connect'] == 1) {
+		if (isset($_SESSION['connect']) && $_SESSION['connect'] == 1) {
 			$nav = ' 
 			<!-- Page Content -->
 

@@ -34,12 +34,6 @@ function verifInputText(input)
 				return false;
 			}
 		}
-		
-		if (name == 'password' || name == 'password-confirm') {
-					if (inputTestIsPass(input) === false) {
-						return false;
-					}
-				}
 
 		if (inputTestSize(input) === false) {
 			return false;
@@ -72,9 +66,9 @@ function inputTestIsEmail(input)
 	var name = input.name;
 	var value = input.value;
 	var placeholder = input.placeholder;
-	var mailformat = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
+	var mailFormat = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
-	if(!value.match(mailformat))
+	if(!value.match(mailFormat))
 	{
 		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
 		error(input, true);
@@ -84,20 +78,93 @@ function inputTestIsEmail(input)
 }
 
 
-
-function inputTestIsPass(input)
+function verifPassPattern(input)
 {
-	var name = input.name;
 	var value = input.value;
-	var placeholder = input.placeholder;
-	var mailformat = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{12,40}$/;
-	if(!value.match(mailformat))
-	{
-		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
-		error(input, true);
-		changeClassAndMessage(name, message, true);
+	var length = value.length;
+	var lowerCase = 0;
+	var upperCase = 0;
+	var number = 0;
+	var specialChar = 0;
+	var passLength = 0;
+
+	var blocks = new Array();
+
+	for (var i = 0 ; i < 5 ; i++) {
+		blocks[i] = document.getElementById('rule-' + i); 
+		blocks[i].className = 'red';
+	}
+
+	if (length >= 12 && length <= 36) {
+		passLength = 1;
+		blocks[4].className = 'green';
+	}
+
+	for (var i = 0 ; i < length ; i++) {
+		if (value.charCodeAt(i) >= 65 && value.charCodeAt(i) <= 90 && upperCase == 0) {
+			upperCase = 1;
+			blocks[0].className = 'green';
+		}
+		if (value.charCodeAt(i) >= 97 && value.charCodeAt(i) <= 122 && lowerCase == 0) {
+			lowerCase = 1;
+			blocks[1].className = 'green';
+		}
+		if (returnSpecialChar(value.charCodeAt(i)) === 1 && specialChar == 0) {
+			specialChar = 1;
+			blocks[2].className = 'green';			
+		}
+		if (!isNaN(value[i]) && number == 0) {
+			number = 1;
+			blocks[3].className = 'green';
+		}
+	}
+
+
+	
+}
+
+
+
+function verifSamePass()
+{
+
+	var passwords = document.getElementsByClassName('btn-custom');
+	var block = document.getElementById('same-pass'); 
+	block.className = 'red';
+
+	if ((passwords[1].value == passwords[0].value) && passwords[0].value.length > 0 && passwords[1].value.length > 0) {
+		block.className = 'green';
+		error(passwords[0], false);
+		error(passwords[1], false);
+		return true;
+	} else {
+		error(passwords[0], true);
+		error(passwords[1], true);
 		return false;
 	}
+}
+
+
+function returnSpecialChar(nAscii) {
+	if (nAscii == 33 || nAscii == 64 || (nAscii >= 35 && nAscii <= 38) || nAscii == 94 || nAscii == 42 || 
+		nAscii == 95 || nAscii == 61 || nAscii == 43 || nAscii == 45) {
+		return 1;
+	} else {
+		return 0;
+	}
+
+
+
+
+	if (value.indexOf(/^([a-z])$/) < 0) {
+		message = 'Le mot de passe ne contient pas de minuscule';
+	} else if (value.indexOf(/^([A-Z])$/) < 0) {
+		message = 'Le mot de passe ne contient pas de majuscule';
+	} else {
+		message = '';
+	}
+
+	return message;
 }
 
 
