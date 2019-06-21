@@ -1,4 +1,14 @@
 <?php
+	if (!session_id()) {
+		session_start();
+	}
+
+	include_once 'objets/classe-adherent.php';
+	require_once 'controller.php';
+	require_once 'include/view-functions.php';	
+	var_dump($_POST);
+	var_dump($_SESSION);
+	
 	echo '
 		<!DOCTYPE html>
 		<html>
@@ -20,19 +30,23 @@
 		</head>
 		<body>
 			<div class="d-flex toggled" id="wrapper">
-				
-			<!-- Sidebar -->'
-
-				. asideMembers() . '
-				
-			<!-- /#sidebar-wrapper -->
 
 			<!-- Page Content -->
 
-				<div id="page-content-wrapper">'
-					. menuButton(PRESIDENT) . '
-					<div class="container-fluid">' 
-					. switchPages(PRESIDENT) . '
+				<div id="page-content-wrapper">
+					<div class="container-fluid">
+						<center>
+						<h1>Veuillez saisir votre mot de passe</h1><br /><br />
+						<form action="#" method="post" onsubmit="return verifAllForm()">
+								<label class="user-label" for="password">Mot de passe</label><br />
+								<input type="password" class="btn btn-outline-primary btn-lg" placeholder="Mot de passe" name="password" minlength="12" maxlength="36" size="40" onblur="verifInputText(this)" required /><br /><br />
+								<p class="hidden" name="password"></p>
+								<label class="user-label" for="password-confirm">Confirmation du mot de passe</label><br />
+								<input type="password" class="btn btn-outline-primary btn-lg" placeholder="Vérifier le mot de passe" name="password-confirm" maxlength="36" size="40"  onblur="verifInputText(this)" required /><br /><br />
+								<p class="hidden" name="password-confirm"></p>
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="submit" value="Valider l\'inscription" class="bouton">
+						</form>
+						</center>
 					</div>
 				</div>
 

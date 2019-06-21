@@ -18,44 +18,65 @@
 	// Code HTML pour les trois boutons du menu 
 	function menuButton($nStatut)
 	{
-		$nav = ' 
-		<!-- Page Content -->
+		if ($_SESSION['connect'] == 1) {
+			$nav = ' 
+			<!-- Page Content -->
 
-		    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
-		    	<button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
-
-		    	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-		          <span class="navbar-toggler-icon"></span>
-		   		</button>
-		    	<div class="collapse navbar-collapse" id="navbarSupportedContent">
-		        	<ul class="navbar-nav ml-auto mt-2 mt-lg-0">
-		            	<li class="nav-item active">
-		            	<form method="post" action="#">
-							<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Réservations" />
-		            	</li>
-		            	<li class="nav-item">
-							<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Adhérents" />
-						</form>
-		            	</li>';
-
-		        // Si c'est le président qui est connecté on ajoute le troisième bouton
-				if ($nStatut == PRESIDENT) {
-				 	$nav .= '
- 						<li class="nav-item">
-				 			<form method="post" action="#">
-								<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" 		value="Utilisateurs" />
+			    <nav class="navbar navbar-expand-lg navbar-light bg-light border-bottom">
+			    	<button class="btn btn-primary" id="menu-toggle">Toggle Menu</button>
+			    	<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+			          <span class="navbar-toggler-icon"></span>
+			   		</button>
+			   		<input id="deconnection-button" class="btn btn-primary" type="submit" name="" value="Déconnexion" />
+			    	<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			        	<ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+			            	<li class="nav-item active">
+			            	<form method="post" action="#">
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Réservations" />
+			            	</li>
+			            	<li class="nav-item">
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Adhérents" />
 							</form>
-						</li>';
-				}
+			            	</li>';
 
-		$nav .= '
-		          	</ul>
-		        </div>
-		    </nav>';
-		    
+			        // Si c'est le président qui est connecté on ajoute le troisième bouton
+					if ($nStatut == PRESIDENT) {
+					 	$nav .= '
+ 							<li class="nav-item">
+					 			<form method="post" action="#">
+									<input type="submit" class="btn btn-outline-primary btn-lg" name="page_button" value="Utilisateurs" />
+								</form>
+							</li>';
+					}
+
+			$nav .= '
+			          	</ul>
+			        </div>
+			    </nav>';
 		return $nav;
+		}   
 
 	}
+
+
+	// Code HTML pour la page de connexion
+	function displayConnectionPage()
+	{
+		if (!isset($_SESSION['connect']) || $_SESSION['connect'] === 0) {
+			$page = '
+			<center>
+				<h1>Veuillez-vous connecter</h1>
+				<form method="post" action="#">
+					<input type="email" class="btn btn-outline-primary btn-lg" name="email" placeholder="Adresse mail" minlength="6" maxlength="75" onblur="verifInputText(this)" required />
+					<input type="password" class="btn btn-outline-primary btn-lg" name="password" placeholder="Mot de passe" required />
+				</form>
+			</center>';
+
+			return $page;
+		}
+	}
+
+
 
 
 	// Code HTML pour la page des réservations
@@ -118,10 +139,7 @@
 				<div>
 					<input class="user-input" type="submit" name="button" value="Créer" />
 				</div>
-			</form>
-			<div>
-				<input id="deconnection-button" class="user-input" type="submit" value="Déconnexion" />
-			</div>';
+			</form>';
 
 		// Code JavaScript pour les boutons et l'aside
 		$page .= '
@@ -151,53 +169,53 @@
 		$count = numberOfPreRegistered();
 		$input = '';
 
-		if ($count == 0) {
-			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" disabled ="disabled" />';
-		} else {
-			$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" />';
-		}
-		// Aside
-		$aside = '
-				<!-- Sidebar -->
-			    <div class="bg-light border-right" id="sidebar-wrapper">
-		     	   	<div class="sidebar-heading">
-		     	   		<!--<script>
-							var maintenant=new Date();
-							var jour=maintenant.getDate();
-							var mois=maintenant.getMonth()+1;
-							var an=maintenant.getFullYear();
-							var heure = maintenant.getHours();
-							var min = maintenant.getMinutes();
-							var sec = maintenant.getSeconds();
-
-							if (mois < 10) {
-								document.write(jour, "/0", mois, "/", an);
-							}
-							else {
-								document.write(jour,"/",mois,"/",an);
-							}
-
-							if (min < 10) {
-								document.write("<br />", heure, ":0", min, ":", sec);
-							} else {
-								document.write("<br />", heure, ":", min, ":", sec);
-							}
-						</script>-->
-		     	   	</div>
-		      		<div class="list-group list-group-flush">
-		        		<form class="aside-form" method="post" action="#">
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Voir les adhérents" />' .
-							$input . '
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Ajouter un adhérent" />
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Modifier un adhérent" />
-							<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Supprimer un adhérent" />
-							<input type="button" class="btn btn-outline-secondary btn-block" name="page_button" value="Déconnexion" />
-						</form>
-		      		</div>
-		    	</div>
-		   		<!-- /#sidebar-wrapper -->';
-
+		if (isset($_SESSION['connect']) && $_SESSION['connect'] == 1) {
+			if ($count == 0) {
+				$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" disabled ="disabled" />';
+			} else {
+				$input = '<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Pré-inscription (' . numberOfPreRegistered() . ')" />';
+			}
+			// Aside
+			$aside = '
+					<!-- Sidebar -->
+				    <div class="bg-light border-right" id="sidebar-wrapper">
+			     	   	<div class="sidebar-heading">
+			     	   		<!--<script>
+								var maintenant=new Date();
+								var jour=maintenant.getDate();
+								var mois=maintenant.getMonth()+1;
+								var an=maintenant.getFullYear();
+								var heure = maintenant.getHours();
+								var min = maintenant.getMinutes();
+								var sec = maintenant.getSeconds();
+	
+								if (mois < 10) {
+									document.write(jour, "/0", mois, "/", an);
+								}
+								else {
+									document.write(jour,"/",mois,"/",an);
+								}
+	
+								if (min < 10) {
+									document.write("<br />", heure, ":0", min, ":", sec);
+								} else {
+									document.write("<br />", heure, ":", min, ":", sec);
+								}
+							</script>-->
+			     	   	</div>
+			      		<div class="list-group list-group-flush">
+			        		<form class="aside-form" method="post" action="#">
+								<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Voir les adhérents" />' .
+								$input . '
+								<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Ajouter un adhérent" />
+								<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Modifier un adhérent" />
+								<input type="submit" class="btn btn-outline-secondary btn-block" name="page_button" value="Supprimer un adhérent" />
+							</form>
+			      		</div>
+			    	</div>
+			   		<!-- /#sidebar-wrapper -->';
 		return $aside;		
+		}
 	}
 
 
@@ -220,6 +238,10 @@
 	function sendMail($aUser)
 	{
 		$text = '<h3>Un mail est envoyé à "' . $aUser['mail_adherent'] . '" pour qu\'il puisse changer son mot 	de passe</h3>';
+		// Les lignes suivantes sont pour le test en local
+		$_SESSION['page'] = 'Formulaire de mot de passe';
+		header ("Refresh: 3;URL=/zumba-intranet/pass-form.php");
+
 	
 		return $text;
 	}

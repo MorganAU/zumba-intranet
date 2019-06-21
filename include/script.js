@@ -16,7 +16,6 @@ function verifInputText(input)
 	var sizeText = input.value.length;
 	var name = input.name;
 
-
 	if (name == 'status') {
 		if (inputTestIsSelect(input) === false) {
 			return false;
@@ -35,8 +34,13 @@ function verifInputText(input)
 				return false;
 			}
 		}
-
 		
+		if (name == 'password' || name == 'password-confirm') {
+					if (inputTestIsPass(input) === false) {
+						return false;
+					}
+				}
+
 		if (inputTestSize(input) === false) {
 			return false;
 		} else {
@@ -70,6 +74,23 @@ function inputTestIsEmail(input)
 	var placeholder = input.placeholder;
 	var mailformat = /^([a-zA-Z0-9_\-\.]+)@([a-zA-Z0-9_\-\.]+)\.([a-zA-Z]{2,5})$/;
 
+	if(!value.match(mailformat))
+	{
+		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
+		error(input, true);
+		changeClassAndMessage(name, message, true);
+		return false;
+	}
+}
+
+
+
+function inputTestIsPass(input)
+{
+	var name = input.name;
+	var value = input.value;
+	var placeholder = input.placeholder;
+	var mailformat = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{12,40}$/;
 	if(!value.match(mailformat))
 	{
 		message = 'Le format du champ "' + placeholder + '" est incorrecte.';
@@ -134,10 +155,6 @@ function changeClassAndMessage(sName, sMessage, result)
 {
 	var para = '';
 	var index = 0;
-	console.log("name => " + sName);
-	console.log("message => " + sMessage);
-	console.log("result => " + result);
-
 
   	if (result) {
  		para = document.getElementsByClassName('hidden');

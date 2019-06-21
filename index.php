@@ -2,6 +2,8 @@
 	if (!session_id()) {
 		session_start();
 	}
+
+	$_SESSION['connect'] = 1;
 	
 	include_once 'objets/classe-adherent.php';
 	require_once 'controller.php';

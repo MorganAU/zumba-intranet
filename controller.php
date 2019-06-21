@@ -20,55 +20,61 @@
 	{
 		$section = '';
 
-		if (isset($_POST['page_button'])) {
-			switch ($_POST['page_button']) {
-				case 'Utilisateurs':
-					if ($nStatut == PRESIDENT) {
-   						$_SESSION['page'] = 'Utilisateurs';
-					}
-					break;
 
-				case 'Adhérents':
-				case 'Voir les adhérents':
-   					$_SESSION['page'] = 'Voir les adhérents';
-   					$_SESSION['button_page'] = 'Envoyer un mail';
-					break;
-				
-				case 'Réservations':
-   					$_SESSION['page'] = 'Réversations';
-					break;
-
-				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
-					$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
-					$_SESSION['button_page'] = 'Valider l\'inscription';
-					break;
-
-				case 'Ajouter un adhérent':
-					$_SESSION['page'] = 'Ajouter un adhérent';
-					$_SESSION['button_page'] = 'Valider';
-					break;
-
-				case 'Modifier un adhérent':
-				case 'Retour':
-					$_SESSION['page'] = 'Modifier un adhérent';
-					$_SESSION['button_page'] = 'Modifier';
-					break;
+		if (!isset($_SESSION['connect']) || $_SESSION['connect'] == 0) {
+			$_SESSION['page'] = 'Connexion';
+			$_SESSION['button_page'] = 'Se connecter';
+		} else if (isset($_SESSION['connect']) && $_SESSION['connect'] == 1) {
+			if (isset($_POST['page_button'])) {
+				switch ($_POST['page_button']) {
+					case 'Utilisateurs':
+						if ($nStatut == PRESIDENT) {
+   							$_SESSION['page'] = 'Utilisateurs';
+						}
+						break;
+	
+					case 'Adhérents':
+					case 'Voir les adhérents':
+   						$_SESSION['page'] = 'Voir les adhérents';
+   						$_SESSION['button_page'] = 'Envoyer un mail';
+						break;
 					
-				case 'Modifier':
-				case 'Retour':
-					$_SESSION['page'] = 'Formulaire de modification';
-					$_SESSION['button_page'] = 'Modifier';
-					break;
-					
-				case 'Supprimer un adhérent':
-					$_SESSION['page'] = 'Supprimer un adhérent';
-					$_SESSION['button_page'] = 'Supprimer';
-					break;
-					
-				default:
-   					$_SESSION['page'] = 'Réversations';
-					break;
-					
+					case 'Réservations':
+   						$_SESSION['page'] = 'Réversations';
+						break;
+	
+					case 'Pré-inscription (' . numberOfPreRegistered() . ')':
+						$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
+						$_SESSION['button_page'] = 'Valider l\'inscription';
+						break;
+	
+					case 'Ajouter un adhérent':
+						$_SESSION['page'] = 'Ajouter un adhérent';
+						$_SESSION['button_page'] = 'Valider';
+						break;
+	
+					case 'Modifier un adhérent':
+					case 'Retour':
+						$_SESSION['page'] = 'Modifier un adhérent';
+						$_SESSION['button_page'] = 'Modifier';
+						break;
+						
+					case 'Modifier':
+					case 'Retour':
+						$_SESSION['page'] = 'Formulaire de modification';
+						$_SESSION['button_page'] = 'Modifier';
+						break;
+						
+					case 'Supprimer un adhérent':
+						$_SESSION['page'] = 'Supprimer un adhérent';
+						$_SESSION['button_page'] = 'Supprimer';
+						break;
+						
+					default:
+   						$_SESSION['page'] = 'Réversations';
+						break;
+						
+				}
 			}
 		}
 
@@ -83,6 +89,10 @@
 	{
 		if (isset($_SESSION['page'])) {
 			switch ($_SESSION['page']) {
+				case 'Connexion':
+					$section = displayConnectionPage();
+					break;
+				
 				case 'Utilisateurs':
 					$section = displayUsersPage();
 					break;
@@ -185,6 +195,8 @@
 					break;
 				
 				case 'Valider':
+				case 'Créer':
+
 					$page = addUsersButton();
 					break;
 				
@@ -229,6 +241,7 @@
 				$post = 'member';
 			}
 		}
+
 		if ($post != '') {
 			$newAdherent = new Adherent();
 
