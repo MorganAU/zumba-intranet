@@ -1,16 +1,20 @@
 <?php
 	/** Liste des méthodes de la classe adhérent
-	*	__construct() --------------> Fonction pour vérifier les valeurs des input du formulaire
-	*	createUser() ------------> Fonction pour vérirfier si les valeurs saisies sont bien au format mail
-	*	createStatus() ---------------> Fonction pour vérirfier la taille des valeurs saisies
-	*	readAdherentByMail() ---------------> Fonction pour changer le bckground du champ si il y a une erreur
-	*	changeClassAndMessage(sName, sMessage, result)-> Fonction qui renvoie les messages d'erreur en fonction de celles-ci
-	*	getParaIndex(aElements, sName) -----> Fonction qui renvoie l'indes d'un élément
-	*	verifAllForm() ---------------------> Fonction pour vérifier tout le formulaire quand le bouton valoider est pressé
+	*	__construct() ----------------> Constructeur de la classe Adherent
+	*	createUser() -----------------> Créer un adhérent dans la base de données
+	*	createStatus() ---------------> Affecte un statut à un adhérent
+	*	readAdherentByMail() ---------> Récupère un adhérent en fonction d'une adresse mail
+	*	freeMail() -------------------> Vérifie si l'adresse mail est déjà présente si oui elle récupère l'id
+	*	readStatus($nId) -------------> Récupère la valeur du champ nom_statut en fonction de son id
+	*	getAllAdherents() ------------> Récupère tous les adhérents de la table
+	*	readIdByMail() ---------------> Récupère l'id en fonction du mail
+	*	updateUser($nId) -------------> Met un jour un utilisateur en fonction de son id
+	*	updateStatus($nId, $nStatut) -> Met un jour le statut d'un utilisateur en fonction de son id
+	*	deleteMember() ---------------> Supprime un adhérent
+	*	deleteStatus() ---------------> Supprime le statut d'un adherent 
+	*	setId($nId) ------------------> Lien vers les mutateurs
+	*	getId() ------------------- --> Lien vers les accesseurs
 	**/
-
-
-
 
 	include_once 'sql_connect.php';
 	include_once 'request.php';
@@ -29,23 +33,22 @@
 		private $mail;
 		private $photo;
 		private $dateInscritpion;
- 
+ 		
+ 		// Constructeur de la classe Adherent
 		public function __construct() 
 		{
  			$this->statut = 1;
- 			$this->adresse = 'xxxxxx';
-			$this->cp = 'xxxxx';
-			$this->ville = 'xxxxxx';
 		}
  
 		/*********************************************************************
 		*								CREATE 								 *
 		*********************************************************************/
 
+		// Créer un adhérent dans la base de données
 		public function createUser() 
 		{
 			$pdo = databaseConnect();
-			$q = $pdo->prepare(CREER_ADHERENT);
+			$req = $pdo->prepare(CREER_ADHERENT);
 			$lastname = $this->getNom();
 			$name = $this->getPrenom();
 			$address = $this->getAdresse();
@@ -54,25 +57,24 @@
 			$email = $this->getMail();
 			$phone = $this->getTel();
 
-			$q->bindParam(':nom', $lastname);
-			$q->bindParam(':prenom', $name);
-			$q->bindParam(':adresse', $address);
-			$q->bindParam(':cp', $cp);
-			$q->bindParam(':ville',$city);
-			$q->bindParam(':mail', $email);
-			$q->bindParam(':tel', $phone);
+			$req->bindParam(':nom', $lastname);
+			$req->bindParam(':prenom', $name);
+			$req->bindParam(':adresse', $address);
+			$req->bindParam(':cp', $cp);
+			$req->bindParam(':ville',$city);
+			$req->bindParam(':mail', $email);
+			$req->bindParam(':tel', $phone);
 
-			if($q->execute() != false) {
+			if($req->execute() != false) {
 				$this->readIdByMail();
 				$this->createStatus();
 				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
-				errorDatabase($q);
+				errorDatabase($req);
 			}
-			
 		}
 
-
+		// Affecte un statut à un adhérent
 		private function createStatus()
 		{
 			$pdo = databaseConnect();
@@ -80,32 +82,33 @@
 			$status = $this->getStatut();
 			$id = $this->getId();
 
-			$q = $pdo->prepare(CREER_STATUT);
+			$req = $pdo->prepare(CREER_STATUT);
 
-			$q->bindParam(':statut', $status);
-			$q->bindParam(':adherent', $id);
+			$req->bindParam(':statut', $status);
+			$req->bindParam(':adherent', $id);
 
-			if($q->execute() === false) {
-				errorDatabase($q);
+			if($req->execute() === false) {
+				errorDatabase($req);
 			}
 		}
 
 		/*********************************************************************
 		*								READ 								 *
 		*********************************************************************/
- 
+ 		
+ 		// Récupère un adhérent en fonction d'une adresse mail
 		public function readAdherentByMail() 
 		{
 			$pdo = databaseConnect();
 						
-			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
+			$req = $pdo->prepare(LIRE_ADHERENT_PAR_MAIL);
 
 			$email = $this->getMail();
 
-			$q->bindParam(':mail', $email);
+			$req->bindParam(':mail', $email);
 
-			if($q->execute() != false) {
-				while ($row = $q->fetch()) {
+			if($req->execute() != false) {
+				while ($row = $req->fetch()) {
 					$this->setId($row['id_adherent']);
 					$this->setNom($row['nom_adherent']);
 					$this->setPrenom($row['prenom_adherent']);
@@ -118,77 +121,66 @@
 					$this->setPhoto($row['photo_adherent']);
 					$this->setDate($row['date_adherent']);
 				}	
+			} else {
+				errorDatabase($req);
 			}
 		}
 
+		// Vérifie si l'adresse mail est déjà présente si oui elle récupère l'id
 		public function freeMail()
 		{
 			$pdo = databaseConnect();
 			$id = null;
 						
-			$q = $pdo->prepare('SELECT * FROM adherent WHERE mail_adherent = :mail');
+			$req = $pdo->prepare(MAIL_DISPONIBLE);
 
 			$email = $this->getMail();
 
-			$q->bindParam(':mail', $email);
+			$req->bindParam(':mail', $email);
 
-			if($q->execute() != false) {
-				while ($row = $q->fetch()) {
+			if($req->execute() != false) {
+				while ($row = $req->fetch()) {
 					$id = $row['id_adherent'];
 				}	
+			} else {
+				errorDatabase($req);
 			}
 
 			return $id; 
 		}
 
+		// Récupère la valeur du champ nom_statut en fonction de son id
 		public function readStatus($nId)
 		{
 			$pdo = databaseConnect();
 
 			$status = '';
-			$q = $pdo->prepare('SELECT nom_statut FROM adherent AS ad 
-								INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
-								INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
-								WHERE ap.id_adherent = :id');
+			$req = $pdo->prepare(LIRE_STATUT_PAR_ID);
 
-			$q->bindParam(':id', $nId);
+			$req->bindParam(':id', $nId);
 
-			if($q->execute() != false) {
-				while ($row = $q->fetch()) {
+			if($req->execute() != false) {
+				while ($row = $req->fetch()) {
 					$status = $row['nom_statut'];
 				}	
+			} else {
+				errorDatabase($req);
 			}
 
 			return $status;
 		}
 
-		public function readAdmin($sMail) 
-		{
-			$pdo = databaseConnect();
-			
-			$q = $pdo->prepare('SELECT * FROM mod582_users WHERE user_email = :mail');
-
-			$q->bindParam(':mail', $sMail);
-
-			if($q->execute() != false) {
-				while ($row = $q->fetch()) {
-					$this->setMail($row['user_email']);
-					$this->setPass($row['user_pass']);
-					$this->setNickname($row['user_nicename']);
-				}	
-			}
-		}
-
+		// Récupère tous les adhérents de la table
  		public function getAllAdherents()
 		{
 			$pdo = databaseConnect();
 						
-			$q = $pdo->prepare('SELECT * FROM adherent');
+			$req = $pdo->prepare(TOUS_LES_ADHERENTS);
 			$i = 0;
 			$aObjects = array();
 
-			if($q->execute() != false) {        
-               while ($data=$q->fetch()) {
+			if($req->execute() != false) {        
+               while ($data=$req->fetch()) {
                    $aObjects[$i]['id_adherent'] = $data['id_adherent'];
                    $aObjects[$i]['nom_adherent'] = $data['nom_adherent'];
                    $aObjects[$i]['prenom_adherent'] = $data['prenom_adherent'];
@@ -201,50 +193,30 @@
                    $aObjects[$i]['photo_adherent'] = $data['photo_adherent'];
                    $aObjects[$i]['date_adherent'] = $data['date_adherent'];
                    $i++;
-               }
-               
+               } 
+			} else {
+				errorDatabase($req);
 			}
 
 			return $aObjects; 
 		}
 
-		public function getAllPreRegistration()
-		{
-			$pdo = databaseConnect();
-
-			$id = PRE_INSCRIT;
-						
-			$q = $pdo->prepare('SELECT * FROM adherent AS ad 
-								INNER JOIN appartient AS ap ON (ad.id_adherent=ap.id_adherent) 
-								INNER JOIN statut AS s ON (ap.id_statut=s.id_statut) 
-								WHERE s.id_statut = :id');
-
-			$q->bindParam(':id', $id);
-			$aObjects = array();
-
-			if($q->execute() != false) {
-				$aObjects = $q->fetchAll();	
-			}
-
-			return $aObjects; 
-		}
-
-
-
+		// Récupère l'id en fonction du mail
 		public function readIdByMail()
 		{
 			$pdo = databaseConnect();
 			$email = $this->getMail();
 
-			$q = $pdo->prepare('SELECT id_adherent FROM adherent 
-								WHERE mail_adherent = :mail');
+			$req = $pdo->prepare(LIRE_ID_ADHERENT_PAR_MAIL);
 
-			$q->bindParam(':mail', $email);
+			$req->bindParam(':mail', $email);
 
-			if($q->execute() != false) {
-				while ($row = $q->fetch()) {
+			if($req->execute() != false) {
+				while ($row = $req->fetch()) {
 					$this->setId($row['id_adherent']);
 				} 
+			} else {
+				errorDatabase($req);
 			}
 		}
 
@@ -253,20 +225,12 @@
 		*								UPDATE 								 *
 		*********************************************************************/
 
-		public function updateUser($nId) 
+		// Met un jour un utilisateur en fonction de son id
+		public function updateUser($nId)
 		{
-
  			$pdo = databaseConnect();
 			
-			$q = $pdo->prepare('UPDATE adherent
-								SET nom_adherent = :nom,
-									prenom_adherent = :prenom,
-									adresse_adherent = :adresse,
-									cp_adherent = :cp,
-									ville_adherent = :ville,
-									mail_adherent = :mail,
-									tel_adherent = :tel
-								WHERE id_adherent = :id');
+			$req = $pdo->prepare(MAJ_ADHERENT_PAR_ID);
 
 			$lastname = $this->getNom();
 			$name = $this->getPrenom();
@@ -276,122 +240,74 @@
 			$email = $this->getMail();
 			$phone = $this->getTel();
 
-			$q->bindParam(':id', $nId);
-			$q->bindParam(':nom', $lastname);
-			$q->bindParam(':prenom', $name);
-			$q->bindParam(':adresse', $address);
-			$q->bindParam(':cp', $cp);
-			$q->bindParam(':ville',$city);
-			$q->bindParam(':mail', $email);
-			$q->bindParam(':tel', $phone);
+			$req->bindParam(':id', $nId);
+			$req->bindParam(':nom', $lastname);
+			$req->bindParam(':prenom', $name);
+			$req->bindParam(':adresse', $address);
+			$req->bindParam(':cp', $cp);
+			$req->bindParam(':ville',$city);
+			$req->bindParam(':mail', $email);
+			$req->bindParam(':tel', $phone);
 			
-			if($q->execute() === false) {
-				errorDatabase($q);
+			if($req->execute() === false) {
+				errorDatabase($req);
 			}
 		}
 
+		// Met un jour le statut d'un utilisateur en fonction de son id
 		public function updateStatus($nId, $nStatut)
 		{
 			$pdo = databaseConnect();
 			
-			$q = $pdo->prepare('UPDATE appartient
-								SET id_statut = :statut
-								WHERE id_adherent = :id');
+			$req = $pdo->prepare(MAJ_STATUT_PAR_ID_ADHERENT);
 
-			$q->bindParam(':statut', $nStatut);
-			$q->bindParam(':id', intval($nId));
+			$req->bindParam(':statut', $nStatut);
+			$req->bindParam(':id', intval($nId));
 
-			if($q->execute() != false) {
+			if($req->execute() != false) {
 				header('Location:' . $_SERVER['PHP_SELF']);
 			} else {
-				errorDatabase($q);
+				errorDatabase($req);
 			}
-		}
- 
-		public function updatePassUser($sMail, $sNewPassword) 
-		{
- 			$pdo = databaseConnect();
-			
-			$q = $pdo->prepare('UPDATE mod582_user_coment_add
-								SET pass = :pass
-								WHERE mail = :mail');
-
-			$sNewPassword = password_hash($sPass, PASSWORD_DEFAULT);
-			$q->bindParam(':mail', $sMail);
-			$q->bindParam(':pass', $sNewPassword);
-
-			$q->execute();
-			
-			if ($q->fetch() != false) {
-				logoutLog('database_error');
-			} else {
-				loginLog('update_sucess');
-			}
-
 		}
 
 		/*********************************************************************
 		*								DELETE 								 *
 		*********************************************************************/
 
+		// Supprime un adhérent
 		public function deleteMember() 
 		{
  			$pdo = databaseConnect();
-
-			$q = $pdo->prepare('DELETE FROM adherent 
-				 				WHERE id_adherent = :id');
+			$req = $pdo->prepare(SUPPRIME_ADHERENT_PAR_ID);
 
 			$id = intval($this->getId());
-
-			$q->bindParam(':id', $id);
+			$req->bindParam(':id', $id);
 			
-			if($q->execute() != false) {
+			$this->deleteStatus();
+			
+			if($req->execute() != false) {
 				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
-				errorDatabase($q);
-				die("adherent");
+				errorDatabase($req);
 			}
-
 		}
 
-		
-		public function deleteStatus() 
+		// Supprime le statut d'un adherent 
+		private function deleteStatus() 
 		{
  			$pdo = databaseConnect();
 		
-			$q = $pdo->prepare('DELETE FROM appartient 
-				 				WHERE id_adherent = :id');
+			$req = $pdo->prepare(SUPPRIME_STATUT_PAR_ID_ADHERENT);
 
 			$id = intval($this->getId());
 
-			$q->bindParam(':id', $id);
+			$req->bindParam(':id', $id);
 			
-			if($q->execute() === false) {
-				errorDatabase($q);
-				die("statut");
+			if($req->execute() === false) {
+				errorDatabase($req);
 			}
-
-		}
-
-		
-		public function deleteUser($nId) 
-		{
- 			$pdo = databaseConnect();
-			
-			$q = $pdo->prepare('DELETE FROM mod582_user_coment_add 
-				 				WHERE registered_id = :id');
-
-			$q->bindParam(':id', $nId);
-
-			$q->execute();
-			
-			if ($q->fetch() != false) {
-				logoutLog('database_error');
-			}
-
-		}
-
-		
+		}		
 
 		/************************************************************
 		*****					MUTATORS						*****

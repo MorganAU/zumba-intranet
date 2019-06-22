@@ -1,4 +1,21 @@
 <?php
+	/** Liste des fonctions du fichier controller.php
+	*	switchPages($nStatut)---------> Récupère la variable $_POST et la traite
+	*	display() --------------------> Affiche la page correspondante ainsi que les boutons
+	*	buttonSwitch($aUser) ---------> Gère les différents boutons des tableaux
+	*	buttonProcess($aUser) --------> Gère les fonctions des boutons des tableaux
+	*	addUsersButton() -------------> Gère les formulaires d'ajout de adhérents ou d'utilisateurs
+	*	validPreRegistration($aUser) -> Gère la validation d'un pré-inscription
+	*	updateMemberButton() ---------> Gère la modification de membres
+	*	deleteMember($aUser) ---------> Gère la suppression de membres
+	*	getData() --------------------> Récupère toutes les données pour les tableaux
+	*	getMembers() -----------------> Retourne un tableau contenant les adhérents inscrits
+	*	getPreRegistered() -----------> Retourne un tableau contenant les adhérents pré-inscrits
+	*	numberOfPreRegistered() ------> Retourne le nombre de pré-inscrit
+	*	getCurrentDateTime() ---------> Retourne la date et l'heure actuelle selon notre format et notre fuseau
+	*	newFormatDate($sDate) --------> Retourne une date données dans notre format
+	*	arrayToObject($aArray) -------> Convertit un tableau de données Adherent en objet Adherent
+	**/
 
 	define('PRE_INSCRIT', 1);
 	define('INSCRIT', 2);
@@ -8,18 +25,11 @@
 
 	$debug_statut = PRESIDENT;
 	
-	/**
-	*
-	*	Gestion des pages
-	*
-	*
-	**/
 
 	// Pages principales
 	function switchPages($nStatut)
 	{
 		$section = '';
-
 
 		if (!isset($_SESSION['connect']) || $_SESSION['connect'] == 0) {
 			$_SESSION['page'] = 'Connexion';
@@ -60,7 +70,6 @@
 						break;
 						
 					case 'Modifier':
-					case 'Retour':
 						$_SESSION['page'] = 'Formulaire de modification';
 						$_SESSION['button_page'] = 'Modifier';
 						break;
@@ -83,8 +92,7 @@
 		return $section;
 	}
 
-
-
+	// Affiche la page correspondante
 	function display()
 	{
 		if (isset($_SESSION['page'])) {
@@ -98,6 +106,9 @@
 					break;
 				
 				case 'Voir les adhérents':
+				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
+				case 'Modifier un adhérent':
+				case 'Supprimer un adhérent':
 					$section = membersList();		
 					break;
 				
@@ -105,38 +116,26 @@
 					$section = displayReservationsPage();	
 					break;
 
-				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
-					$section = preRegistrationList();
-					break;
-				
 				case 'Ajouter un adhérent':
 					$section = addMember();
-					break;
-
-				case 'Modifier un adhérent':
-					$section = membersList();
 					break;
 					
 				case 'Formulaire de modification':
 					$section = addForm("Modifier");
 					break;
 					
-				case 'Supprimer un adhérent':
-					$section = membersList();
-					break;
-					
 				default:
 					$section = displayReservationsPage();	
 					break;
 			}
-
+		} else {
+			$section = displayConnectionPage();
 		}
 
 		return $section;
 	}
 
-
-
+	// Gère les différents boutons des tableaux
 	function buttonSwitch($aUser)
 	{
 		$adherent = arrayToObject($aUser);
@@ -176,16 +175,14 @@
 		$button = displayButtons($id_button, $name_button, $value_button, $adherent);
 
 		return $button;
-
 	}
 
 
-	// Gère les boutons des tableaux et leur fonction
+	// Gère les fonctions des boutons des tableaux
 	function buttonProcess($aUser)
 	{	
 		if (isset($_POST['button'])) {
 			switch ($_POST['button']) {
-	
 				case 'Envoyer un mail':
 					$page = sendMail($aUser);
 					break;
@@ -196,7 +193,6 @@
 				
 				case 'Valider':
 				case 'Créer':
-
 					$page = addUsersButton();
 					break;
 				
@@ -208,25 +204,21 @@
 					$page = deleteMember($aUser);
 				break;
 				
+				case 'Valider le mot de passe':
+					$page = createPass($aUser);
+				break;
+				
 				default:
 					$page = '<h1>Un problème est survenu</h1>';
 					break;
 			}
 		}
 
-		if (isset($_SESSION['button'])) {
-			switch ($_SESSION['button']) {
-				case 'Envoyer un mail':
-					$page = sendMail($aUser);
-					break;
-
-			}
-		}
 		return $page;
 	}
 
 
-
+	// Gère les formulaires d'ajout de adhérents ou d'utilisateurs
 	function addUsersButton()
 	{
 		$page = '';
@@ -257,9 +249,9 @@
 
 				if ($post == 'user') {
 					$newAdherent->setStatut(intval($_POST['status']));
-					$page = '<h3>L\'utilisateur a bien été créé. Pensez à lui envoyer un mail pour son mot de passe.</h3>';
 					$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
 					$_SESSION['button'] = 'Valider l\'inscription';
+					$page = '<h3>L\'utilisateur a bien été créé. Pensez à lui envoyer un mail pour son mot de passe.</h3>';
 				}
 
 				if ($post == 'member') {
@@ -268,12 +260,12 @@
 					$newAdherent->setVille($_POST['city']);
 
 					$page = '<h3>L\'adhérent a bien été pré-inscrit. Veuillez valider l\'inscritpion.<h3>';
+					$_SESSION['page'] = 'Voir les adhérents';
 				}
 				$newAdherent->createUser();
-				$_SESSION['page'] = 'Voir les adhérents';
 			} else {
 				$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.<h3>';
-				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
+				header ("Refresh: 3");
 
 			}
 		
@@ -281,43 +273,16 @@
 		return $page;
 	}
 		
-	
-	
+	// Gère la validation d'un pré-inscription
 	function validPreRegistration($aUser)
 	{
 		$adherent = new Adherent();
-		$int = intval($aUser['id_adherent'], 10);
-		$adherent->updateStatus($int, INSCRIT);
+		$id = intval($aUser['id_adherent'], 10);
+		$adherent->updateStatus($id, INSCRIT);
 		$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
-	
-	
 	}
 
-	/*function updateMemberSwitchPage()
-	{
-		$page = '';
-		$test = 0;
-		if (isset($_POST['test'])) {
-			$test = $_POST['test'];
-		}
-
-		if (isset($_POST['button'])) {
-			if ($_POST['button'] == "Modifier" && $test == '0') {
-				$page = updateMemberPage();
-			} else if ($_POST['button'] == "Modifier" && $test == '1') {
-				$page = updateMemberButton();
-			} else {
-				$page = membersList();
-			}
-		} else {
-			$page = membersList();
-		}
-
-		return $page;
-	}
-*/
-
-
+	// Gère la modification de membres
 	function updateMemberButton()
 	{
 		$page = '';
@@ -325,18 +290,18 @@
 		if (isset($_POST['button'])) {
 			if ($_POST['button'] == 'Modifier') {
 				$currentAdherent  = new Adherent();
-
+				// Si l'email est différent
 				if (strtolower($_POST['email']) != strtolower($_POST['emailTemp'])) {
 					$currentAdherent->setMail(strtolower($_POST['email']));
 					$exist = $currentAdherent->freeMail();
-					
+					// Si l'email existe dans la base de données $exist sera différent de null
 					if ($exist !== null) {
 						$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '</h3>.';
 						$_SESSION['page'] = 'Modifier un adhérent';
-						header ("Refresh: 0;URL=" . $_SERVER['PHP_SELF']);
+						header ("Refresh: 0");
 					}
 				} 	
-
+				// Si l'email n'existe pas ou que l'email reste la même
 				if ($exist === null) {
 					$currentAdherent->setNom($_POST['lastname']);
 					$currentAdherent->setPrenom($_POST['name']);
@@ -348,38 +313,36 @@
 					$page .= '<h3>Mise à jour effectuée</h3>';
 					$currentAdherent->updateUser($_POST['idTemp']);
 					$_SESSION['page'] = 'Modifier un adhérent';
-					header ("Refresh: 0;URL=" . $_SERVER['PHP_SELF']);
-
+					header ("Refresh: 0");
 				}
 			}
 		}
 		return $page;
-	
 	}
 
-
-
-
-	function deleteMember($aUser) {
+	// Gère la suppression de membres
+	function deleteMember($aUser)
+	{
 		$adherent = new Adherent();
 
 		$adherent->setId($aUser['id_adherent']);
 		$page = '<h3>L\'utilisateur n°' . $aUser['id_adherent'] . ' => ' . $aUser['nom_adherent'] . ' ' . $aUser['prenom_adherent'] . ' a bien été supprimé.</h3>';
-		$adherent->deleteStatus();
+		
 		$adherent->deleteMember();
 
 		return $page;
 	}
 
 
-
+	// Retourne toutes les données pour les tableaux
 	function getData()
 	{
 		$aAdherent = array();
 		$adherent = new Adherent();
 		$aAdherent = $adherent->getAllAdherents();
 		$count = count($aAdherent);
-	
+		
+		// Récupère les statuts
 		for ( $i = 0; $i < $count; $i++ ) {
           $aAdherent[$i] += ['statut_adherent' => $adherent->readStatus($aAdherent[$i]['id_adherent'])];
     	}
@@ -387,7 +350,44 @@
 		return $aAdherent;
 	}
 
+	// Retourne un tableau contenant les adhérents inscrits
+	function getMembers()
+	{
+		$data = getData();
+		$listMembers = array();
 
+		foreach ($data as $value) {
+			if ($value['statut_adherent'] == 'INSCRIT') {
+				array_push($listMembers, $value);
+			}
+		}
+
+		return $listMembers;
+	}
+
+	// Retourne un tableau contenant les adhérents pré-inscrits
+	function getPreRegistered()
+	{
+		$data = getData();
+		$listPreRegistered = array();
+
+		foreach ($data as $value) {
+			if ($value['statut_adherent'] == 'PRE_INSCRIT') {
+				array_push($listPreRegistered, $value);
+			}
+		}
+
+		return $listPreRegistered;
+	}
+
+	// Retourne le nombre de pré-inscrit
+	function numberOfPreRegistered()
+	{
+		$data = getPreRegistered();
+		return count($data);
+	}
+	
+	// Retourne la date et l'heure actuelle selon notre format et notre fuseau
 	function getCurrentDateTime()
 	{
 		date_default_timezone_set('Europe/Paris');
@@ -396,27 +396,19 @@
 		return $date;
 	}
 
-
-
-	
-
-
-
+	// Retourne une date données dans notre format
 	function newFormatDate($sDate)
 	{
 		if ($sDate != null) {
 			$dt = DateTime::createFromFormat('Y-m-d H:i:s', $sDate);		
 			return $dt->format('j-m-Y H:i:s');
 		}
-
 	}
 
-
-
+	// Convertit un tableau de données Adherent en objet Adherent
 	function arrayToObject($aArray)
 	{
 		$object = new Adherent();
-
 		$object->setId($aArray['id_adherent']);
 		$object->setNom($aArray['nom_adherent']);
 		$object->setPrenom($aArray['prenom_adherent']);
@@ -432,26 +424,15 @@
 	}
 
 
-
-	function numberOfPreRegistered()
+	function createPass($oUser)
 	{
-		$data = getPreRegistered();
-		return count($data);
+		var_dump($oUser);
+		
 	}
+
+
+
+
 	
 
-
-	function getPreRegistered()
-	{
-		$data = getData();
-		$listPreRegistered = array();
-
-		foreach ($data as $value) {
-			if ($value['statut_adherent'] == 'PRE_INSCRIT') {
-				array_push($listPreRegistered, $value);
-			}
-		}
-
-		return $listPreRegistered;
-
-	}
+	

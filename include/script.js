@@ -132,14 +132,14 @@ function verifSamePass()
 	var block = document.getElementById('same-pass'); 
 	block.className = 'red';
 
-	if ((passwords[1].value == passwords[0].value) && passwords[0].value.length > 0 && passwords[1].value.length > 0) {
+	if ((passwords[1].value == passwords[2].value) && passwords[2].value.length > 0 && passwords[1].value.length > 0) {
 		block.className = 'green';
-		error(passwords[0], false);
 		error(passwords[1], false);
+		error(passwords[2], false);
 		return true;
 	} else {
-		error(passwords[0], true);
 		error(passwords[1], true);
+		error(passwords[2], true);
 		return false;
 	}
 }

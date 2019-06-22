@@ -5,9 +5,12 @@
 
 	include_once 'objets/classe-adherent.php';
 	require_once 'controller.php';
-	require_once 'include/view-functions.php';	
+	require_once 'include/view-functions.php';
 	var_dump($_POST);
 	var_dump($_SESSION);
+	if (!isset($_SESSION['message'])) {
+		$_SESSION['message'] = '';
+	}
 	
 	echo '
 		<!DOCTYPE html>
@@ -37,6 +40,7 @@
 					<div class="container-fluid">
 						<center>
 						<h1>Veuillez saisir votre mot de passe</h1><br /><br />
+						<h4>' . $_SESSION['message'] . '</h4><br /><br />
 						<table>
 							<tbody id="password-table">
 								<tr>
@@ -67,13 +71,16 @@
 								</tr>
 							</tbody>
 						</table>
-						<form action="#" method="post" onsubmit="return verifSamePass()">
+						<form action="#" method="post" onsubmit="return verifSamePass()"><br />
+								<label class="user-label" for="email">Saississez votre adresse mail</label><br />
+								<p class="hidden" name="email"></p>
+								<input type="email" class="btn-custom" placeholder="Adresse mail" name="email" minlength="6" maxlength="75" size="40" onkeyup="verifInputText(this)" required /><br /><br />
 								<label class="user-label" for="password">Mot de passe</label><br />
 								<input type="password" class="btn-custom" pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*_=+-]).{12,36}$" placeholder="Mot de passe" name="password" minlength="12" maxlength="36" size="40" onkeyup="verifPassPattern(this)" required /><br /><br />
 								<label class="user-label" for="password-confirm">Confirmation du mot de passe</label><br />
 								<input type="password" class="btn-custom" placeholder="Vérifier le mot de passe" name="password-confirm" maxlength="36" size="40" onkeyup="verifSamePass()" required /><br /><br />
 								<p class="hidden" name="password"></p>
-								<input type="submit" class="btn btn-outline-primary btn-lg" name="submit" value="Valider le mot de passe">
+								<input type="submit" class="btn btn-outline-primary btn-lg" name="button" value="Valider le mot de passe">
 						</form>
 						</center>
 					</div>
@@ -97,7 +104,26 @@
 	</body>
 </html>';
 
+	if (isset($_POST['button'])) {
+		if (isset($_SESSION['message'])) {
+			unset($_SESSION['message']);
+		}
+		$adherent = new Adherent();
 
+		$adherent->setMail($_POST['email']);
+		$adherent->readAdherentByMail();
+		
+		if ($adherent->getNom() !== null && $adherent->getPass() === null) {
+			$adherent->setPass($_POST['password']);
+			var_dump($adherent);
+		} else {
+			var_dump("fzf");
+		}
+
+		buttonProcess($adherent);
+
+	}
+	
 
 
 

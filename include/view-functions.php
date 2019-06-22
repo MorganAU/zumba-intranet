@@ -1,14 +1,15 @@
 <?php
 	/** Liste des fonctions pour gérer les pages HTML en fonction de là où est l'utilisateur 
 	*	menuButton($nStatut) ---------------> Code HTML pour les trois boutons du menu
+	*	displayConnectionPage() ------------> Code HTML pour la page de connexion
 	*	displayReservationsPage() ----------> Code HTML pour la page des réservations
 	*	displayUsersPage() -----------------> Code HTML pour la page des utilisateurs
 	*	asideMembers() ---------------------> Code HTML pour l'aside quand on est sur la page des adhérents
-	*	membersList() ----------------------> Code HTML pour la liste des membres
-	*	sendMail($aUser) -------------------> Code affichant le texte après clique sur le bouton d'envoi de mail en attendant d'un réel envoie !!!!!!!!!!!!!!!!!!!
-	*	preRegistrationList() --------------> Code HTML pour la liste des pré-inscrits
+	*	membersList() ----------------------> Code HTML pour la liste des membres en fonction de la page
 	*	tablePattern($aData) ---------------> Code pour afficher un tableau contentant des données d'utilisateurs
-	*	displayButtons($nIdButton, $sNameButton, $nIdAdherent, $sMailAdherent) -> Code HTML pour certain boutons de l'aside
+	*	displayButtons($nIdButton, $sNameButton, $nIdAdherent, $sMailAdherent) 
+										   -> Code HTML pour certain boutons de l'aside
+	*	sendMail($aUser) -------------------> Code affichant le texte après
 	*	addMember() ------------------------> Code HTML pour la page d'ajout d'adhérent
 	*	updateMemberPage() -----------------> Code HTML pour la page de modification d'adhérent
 	*	addForm() --------------------------> Code HTML pour la construction du formulaire d'ajout
@@ -55,7 +56,6 @@
 			    </nav>';
 		return $nav;
 		}   
-
 	}
 
 
@@ -75,9 +75,6 @@
 			return $page;
 		}
 	}
-
-
-
 
 	// Code HTML pour la page des réservations
 	function displayReservationsPage()
@@ -159,9 +156,7 @@
 		}
 
 		return $page;
-
 	}
-	
 	
 	//Code HTML pour l'aside quand on est sur la page des adhérents
 	function asideMembers()
@@ -218,47 +213,21 @@
 		}
 	}
 
-
-	// Code HTML pour la liste des membres
+	// Code HTML pour la liste des membres en fonction de la page
 	function membersList()
 	{	
-		$page = '<h1>Liste des membres</h1>';
 
-		// Récupération des données de la base
-		$data = getData();
-		
-		// Construction du tableau
-		$page .= tablePattern($data);
-	
-		return $page;
-	}
-
-
-	// Code affichant le texte après clique sur le bouton d'envoi de mail en attendant d'un réel envoie
-	function sendMail($aUser)
-	{
-		$text = '<h3>Un mail est envoyé à "' . $aUser['mail_adherent'] . '" pour qu\'il puisse changer son mot 	de passe</h3>';
-		// Les lignes suivantes sont pour le test en local
-		$_SESSION['page'] = 'Formulaire de mot de passe';
-		header ("Refresh: 3;URL=/zumba-intranet/pass-form.php");
-
-	
-		return $text;
-	}
-
-
-
-
-
-
-	// Code HTML pour la liste des pré-inscrits
-	function preRegistrationList()
-	{
-	
-		$page = '<h1>Pré-inscriptions en attente:</h1>';
-
-		// Récupération la liste des pré-inscrits
-		$data = getPreRegistered();
+		// Récupération des données de la base en fonction de la page
+		if ($_SESSION['page'] == 'Voir les adhérents') {
+			$page = '<h1>Liste des membres</h1>';
+			$data = getMembers();
+		} else if ($_SESSION['page'] == 'Modifier un adhérent' || $_SESSION['page'] == 'Supprimer un adhérent') {
+			$page = '<h1>Liste des membres</h1>';
+			$data = getData();
+		} else if ($_SESSION['page'] == 'Pré-inscription (' . numberOfPreRegistered() . ')') {
+			$page = '<h1>Pré-inscriptions en attente:</h1>';
+			$data = getPreRegistered();
+		}
 
 		// Construction du tableau
 		$page .= tablePattern($data);
@@ -266,7 +235,6 @@
 		return $page;
 	}
 
-	
 	// Code pour afficher un tableau contentant des données d'utilisateurs
 	function tablePattern($aData)
 	{
@@ -339,7 +307,6 @@
 		return $page;
 	}
 	
-
 	// Code HTML pour certain boutons de l'aside
 	function displayButtons($nIdButton, $sNameButton, $sValueButton, $oUser)
 	{	
@@ -359,7 +326,18 @@
 		return $button;
 	}
 
+	// Code affichant le texte après clique sur le bouton d'envoi de mail en attendant d'un réel envoie
+	function sendMail($aUser)
+	{
+		$text = '<h3>Un mail est envoyé à "' . $aUser['mail_adherent'] . '" pour qu\'il puisse changer son mot 	de passe</h3>';
+		// Les lignes suivantes sont pour le test en local
+		$_SESSION['page'] = 'Formulaire de mot de passe';
+		header ("Refresh: 3;URL=/zumba-intranet/pass-form.php");
 
+	
+		return $text;
+	}
+	
 	// Code HTML pour la page d'ajout d'adhérent
 	function addMember()
 	{
@@ -383,7 +361,6 @@
 		return $page;
 	}
 	
-	
 
 	// Code HTML pour la page de modification d'adhérent
 	function updateMemberPage()
@@ -397,9 +374,7 @@
 					</script>';
 	
 			return $page;
-	
 	}
-
 
 	// Code HTML pour la construction du formulaire d'ajout
 	function addForm($sButtonValue)
