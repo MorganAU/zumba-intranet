@@ -10,6 +10,7 @@
 	*	readIdByMail() ---------------> Récupère l'id en fonction du mail
 	*	updateUser($nId) -------------> Met un jour un utilisateur en fonction de son id
 	*	updateStatus($nId, $nStatut) -> Met un jour le statut d'un utilisateur en fonction de son id
+	*	updatePassword() -------------> Met à jour le mot de passe
 	*	deleteMember() ---------------> Supprime un adhérent
 	*	deleteStatus() ---------------> Supprime le statut d'un adherent 
 	*	setId($nId) ------------------> Lien vers les mutateurs
@@ -68,7 +69,6 @@
 			if($req->execute() != false) {
 				$this->readIdByMail();
 				$this->createStatus();
-				header ("Refresh: 3;URL=" . $_SERVER['PHP_SELF']);
 			} else {
 				errorDatabase($req);
 			}
@@ -271,6 +271,25 @@
 			}
 		}
 
+		// Met à jour le mot de passe
+		public function updatePassword()
+		{
+			$pdo = databaseConnect();
+
+			$id = $this->getId();
+			$password = $this->getPass();
+
+			$req = $pdo->prepare(CREER_MDP);
+
+
+			$req->bindParam(':password', $password);
+			$req->bindParam(':id', $id);
+
+			if($req->execute() === false) {
+				errorDatabase($req);
+			}
+		}
+
 		/*********************************************************************
 		*								DELETE 								 *
 		*********************************************************************/
@@ -307,7 +326,7 @@
 			if($req->execute() === false) {
 				errorDatabase($req);
 			}
-		}		
+		}
 
 		/************************************************************
 		*****					MUTATORS						*****
@@ -439,8 +458,6 @@
 		{
 			return $this->date;
 		}
-
-		
 	}
  
 

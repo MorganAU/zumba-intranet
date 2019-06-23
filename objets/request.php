@@ -52,14 +52,18 @@
 								  		  SET id_statut = :statut
 								 		  WHERE id_adherent = :id');
 
-	/*// function deleteMember() 
-	define('TOUS_LES_ADHERENTS', 'SELECT * FROM adherent');*/
+	// function updatePassword()
+	define('CREER_MDP', 'UPDATE adherent
+						 SET mdp_adherent = :password
+						 WHERE id_adherent = :id');
 
-	// function updatePassUser($sMail, $sNewPassword) 
+	// function deleteMember() 
 	define('SUPPRIME_ADHERENT_PAR_ID', 'DELETE FROM adherent 
-				 				WHERE id_adherent = :id');
+				 						WHERE id_adherent = :id');
 
 	// function deleteStatus() 
 	define('SUPPRIME_STATUT_PAR_ID_ADHERENT', 'DELETE FROM appartient 
-				 				WHERE id_adherent = :id');
+				 							   WHERE id_adherent = :id');
+
+	
 

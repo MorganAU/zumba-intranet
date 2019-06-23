@@ -3,35 +3,32 @@
   	background-color: #545b62;
   	border-color: #4e555b;
 }
-
 #active-button-menu {
 	color: #fff;
     background-color: #007bff;
     border-color: #007bff;
 }
-
 .red {
     background-color: red;
     width: 20px;
     max-height: 20px;
     padding: 1px;
 }
-
 .green {
     background-color: green;
     width: 20px;
     height: 20px;
     margin: 1px;
 }
-
+.add-user-div {
+	display: inline-block;
+}
 .text-head {
 	text-align: center;
 }
-
 .red-input-text {
 	background-color: red;
 }
-
 .btn-custom {
 	display: inline-block;
 	font-weight: 400;
@@ -56,17 +53,17 @@
   	line-height: 1.5;
   	border-radius: 0.3rem;
 }
-
+.btn-padding {
+	margin-left: 10px;
+}
 .btn-custom:hover {
 	color: #fff;
   	background-color: #ccc;
   	border-color: #007bff;
 }
-
 .btn-custom:focus {
   	box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.5);
 }
-
 .btn-custom:disabled {
 	color: #007bff;
   	background-color: transparent;

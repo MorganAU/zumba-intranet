@@ -23,9 +23,9 @@
 		<!-- /#sidebar-wrapper -->
 		<!-- Page Content -->
 				<div id="page-content-wrapper">'
-					. menuButton(PRESIDENT) . '
+					. menuButton() . '
 					<div class="container-fluid">' 
-					. switchPages(PRESIDENT) . '
+					. switchPages() . '
 					</div>
 				</div>
 		<!-- /#page-content-wrapper -->
@@ -43,9 +43,3 @@
 	  	</script>
 	</body>
 </html>';
-
-
-
-
-
-	

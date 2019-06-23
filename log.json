@@ -1,14 +1,23 @@
 {
-	"login": "momo",
-	"nom": "augereau",
-	"prenom": "morgan",
-	"mdp": "azerty",
-	"statut": "0",
-	"adresse": "ici",
-	"cp": "42000",
-	"ville": "icicity",
-	"tel": "gmail",
-	"mail": "picture",
-	"photo": "today",
-	"dateInscritpion": "",
+	"soiree": [
+		{
+			"title": "Soirée 1",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"reservations_evenement": [
+				"toto@toto.fr",
+				"titi@titi.fr"
+			],
+			"date_evenement": "04/04/2019"
+
+		},
+
+		{
+			"title": "Soirée 2",
+			"content": "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+			"reservations_evenement": [
+				"toto@toto.fr"
+			],
+			"date_evenement": "04/07/2019"
+		}
+	]
 }

@@ -2,15 +2,19 @@
 	*	verifInputText(input) --------------> Fonction pour vérifier les valeurs des input du formulaire
 	*	inputTestIsNumber(input) -----------> Fonction pour vérirfier si les valeurs saisies sont bien des chiffres
 	*	inputTestIsEmail(input) ------------> Fonction pour vérirfier si les valeurs saisies sont bien au format mail
+	*	verifPassPattern(input) ------------> Fonction pour vérirfier les mots de passes
+	*	verifSamePass() --------------------> Fonction pour vérifier si les mots de passe sont égaux
+	*	returnSpecialChar(nAscii) ----------> Code ASCII pour les chaînes de caractères
+	*	inputTestSize(input) ----------> Fonction pour vérirfier l'élément select
 	*	inputTestSize(input) ---------------> Fonction pour vérirfier la taille des valeurs saisies
-	*	error(champ, erreur) ---------------> Fonction pour changer le bckground du champ si il y a une erreur
+	*	error(champ, erreur) ---------------> Fonction pour changer le background du champ si il y a une erreur
 	*	changeClassAndMessage(sName, sMessage, result)-> Fonction qui renvoie les messages d'erreur en fonction de celles-ci
 	*	getParaIndex(aElements, sName) -----> Fonction qui renvoie l'indes d'un élément
 	*	verifAllForm() ---------------------> Fonction pour vérifier tout le formulaire quand le bouton valoider est pressé
 	**/
 
 
-
+// Fonction pour vérifier les valeurs des input du formulaire
 function verifInputText(input)
 {
 	var sizeText = input.value.length;
@@ -44,7 +48,7 @@ function verifInputText(input)
 }
 
 
-
+// Fonction pour vérirfier si les valeurs saisies sont bien des chiffres
 function inputTestIsNumber(input)
 {
 	var name = input.name;
@@ -60,7 +64,7 @@ function inputTestIsNumber(input)
 }
 
 
-
+// Fonction pour vérirfier si les valeurs saisies sont bien au format mail
 function inputTestIsEmail(input)
 {
 	var name = input.name;
@@ -77,7 +81,7 @@ function inputTestIsEmail(input)
 	}
 }
 
-
+// Fonction pour vérirfier les mots de passes
 function verifPassPattern(input)
 {
 	var value = input.value;
@@ -118,13 +122,10 @@ function verifPassPattern(input)
 			blocks[3].className = 'green';
 		}
 	}
-
-
-	
 }
 
 
-
+// Fonction pour vérifier si les mots de passe sont égaux
 function verifSamePass()
 {
 
@@ -144,44 +145,30 @@ function verifSamePass()
 	}
 }
 
-
-function returnSpecialChar(nAscii) {
+// Code ASCII pour les chaînes de caractères
+function returnSpecialChar(nAscii)
+{
 	if (nAscii == 33 || nAscii == 64 || (nAscii >= 35 && nAscii <= 38) || nAscii == 94 || nAscii == 42 || 
 		nAscii == 95 || nAscii == 61 || nAscii == 43 || nAscii == 45) {
 		return 1;
 	} else {
 		return 0;
 	}
-
-
-
-
-	if (value.indexOf(/^([a-z])$/) < 0) {
-		message = 'Le mot de passe ne contient pas de minuscule';
-	} else if (value.indexOf(/^([A-Z])$/) < 0) {
-		message = 'Le mot de passe ne contient pas de majuscule';
-	} else {
-		message = '';
-	}
-
-	return message;
 }
 
-
-
+// Fonction pour vérirfier l'élément select'
 function inputTestIsSelect(select)
-{	console.log(select.value);
+{
 	var name = select.name;
 	if (select.value == 0) {
 		message = 'Veuillez sélectionner un rôle.';
 		error(select, true);
-
 		changeClassAndMessage(name, message, true);
 		return false;
 	}
 }
 
-
+// Fonction pour vérirfier la taille des valeurs saisies
 function inputTestSize(input)
 {
 	var name = input.name;
@@ -208,6 +195,7 @@ function inputTestSize(input)
 	}
 }
 
+// Fonction pour changer le background du champ si il y a une erreur
 function error(champ, erreur)
 {
 	if(erreur) {
@@ -217,7 +205,7 @@ function error(champ, erreur)
 	}
 }
 
-
+// Fonction qui renvoie les messages d'erreur en fonction de celles-ci
 function changeClassAndMessage(sName, sMessage, result)
 {
 	var para = '';
@@ -251,7 +239,7 @@ function changeClassAndMessage(sName, sMessage, result)
   	}
 }
 
-
+// Fonction qui renvoie l'indes d'un élément
 function getParaIndex(aElements, sName)
 {
 	var c = aElements.length;
@@ -263,13 +251,12 @@ function getParaIndex(aElements, sName)
 		}
 	}
 	return index;
-
 }
 
-
+// Fonction pour vérifier tout le formulaire quand le bouton valoider est pressé
 function verifAllForm()
 {
-	var input = document.getElementsByClassName('add-user-input');
+	var input = document.getElementsByClassName('btn-custom');
 	var count = input.length;
 	var result = '';
 	
@@ -306,14 +293,7 @@ function verifAllForm()
 		}
 	}
 	return true;
-
 }
 
 
 
-function getCurrentDate()
-{
-	
-
-	alert(text);
-}

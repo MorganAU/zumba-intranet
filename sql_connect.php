@@ -1,5 +1,6 @@
 <?php
 
+	// Pour se connecter à la base de données
 	function databaseConnect() 
 	{
 		include_once 'config.php';
@@ -18,8 +19,7 @@
 		return $pdo;
 	}
 
-
-
+	// Affiche les erreurs SQL
 	function errorDatabase($sRequest)
 	{
 		echo "\nERREUR : Veuillez contacter un administrateur\n";

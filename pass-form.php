@@ -6,12 +6,7 @@
 	include_once 'objets/classe-adherent.php';
 	require_once 'controller.php';
 	require_once 'include/view-functions.php';
-	var_dump($_POST);
-	var_dump($_SESSION);
-	if (!isset($_SESSION['message'])) {
-		$_SESSION['message'] = '';
-	}
-	
+
 	echo '
 		<!DOCTYPE html>
 		<html>
@@ -40,7 +35,6 @@
 					<div class="container-fluid">
 						<center>
 						<h1>Veuillez saisir votre mot de passe</h1><br /><br />
-						<h4>' . $_SESSION['message'] . '</h4><br /><br />
 						<table>
 							<tbody id="password-table">
 								<tr>
@@ -70,8 +64,26 @@
 									<td>12-36 caractères</td>	
 								</tr>
 							</tbody>
-						</table>
-						<form action="#" method="post" onsubmit="return verifSamePass()"><br />
+						</table>';
+
+						if (isset($_POST['button'])) {
+							$adherent = new Adherent();
+							$adherent->setMail($_POST['email']);
+							$adherent->readAdherentByMail();
+							
+							if ($adherent->getNom() !== null && $adherent->getPass() === null) {
+								$adherent->setPass($_POST['password']);
+								buttonProcess($adherent);
+								echo '<h3>Mot de passe créé.</h3>';
+							} else if ($adherent->getNom() === null) {
+								echo '<h3>Cet email n\'existe pas.</h3>';
+							} else if ($adherent->getPass() !== null) {
+								echo '<h3>Votre mot de passe a déjà été créé.</h3>';
+								header ("Refresh: 3;URL=index.php");
+							}
+						}
+
+				  echo '<form action="#" method="post" onsubmit="return verifSamePass()"><br />
 								<label class="user-label" for="email">Saississez votre adresse mail</label><br />
 								<p class="hidden" name="email"></p>
 								<input type="email" class="btn-custom" placeholder="Adresse mail" name="email" minlength="6" maxlength="75" size="40" onkeyup="verifInputText(this)" required /><br /><br />
@@ -104,25 +116,7 @@
 	</body>
 </html>';
 
-	if (isset($_POST['button'])) {
-		if (isset($_SESSION['message'])) {
-			unset($_SESSION['message']);
-		}
-		$adherent = new Adherent();
 
-		$adherent->setMail($_POST['email']);
-		$adherent->readAdherentByMail();
-		
-		if ($adherent->getNom() !== null && $adherent->getPass() === null) {
-			$adherent->setPass($_POST['password']);
-			var_dump($adherent);
-		} else {
-			var_dump("fzf");
-		}
-
-		buttonProcess($adherent);
-
-	}
 	
 
 

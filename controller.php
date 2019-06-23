@@ -15,30 +15,23 @@
 	*	getCurrentDateTime() ---------> Retourne la date et l'heure actuelle selon notre format et notre fuseau
 	*	newFormatDate($sDate) --------> Retourne une date données dans notre format
 	*	arrayToObject($aArray) -------> Convertit un tableau de données Adherent en objet Adherent
+	*	createPass($oUser) -----------> Gère les données avant de créer un mot de passe
+	*	connectProcess() -------------> Gestion de la connexion
+	*	disconnectProcess() ----------> Gestion de la déconnexion
 	**/
 
-	define('PRE_INSCRIT', 1);
-	define('INSCRIT', 2);
-	define('PROFESSEUR', 3);
-	define('SECRETAIRE', 4);
-	define('PRESIDENT', 5);
-
-	$debug_statut = PRESIDENT;
-	
-
 	// Pages principales
-	function switchPages($nStatut)
+	function switchPages()
 	{
 		$section = '';
 
 		if (!isset($_SESSION['connect']) || $_SESSION['connect'] == 0) {
 			$_SESSION['page'] = 'Connexion';
-			$_SESSION['button_page'] = 'Se connecter';
 		} else if (isset($_SESSION['connect']) && $_SESSION['connect'] == 1) {
 			if (isset($_POST['page_button'])) {
 				switch ($_POST['page_button']) {
 					case 'Utilisateurs':
-						if ($nStatut == PRESIDENT) {
+						if ($_SESSION['status'] == 'PRESIDENT') {
    							$_SESSION['page'] = 'Utilisateurs';
 						}
 						break;
@@ -79,6 +72,11 @@
 						$_SESSION['button_page'] = 'Supprimer';
 						break;
 						
+					case 'Mot de passe en attente':
+						$_SESSION['page'] = 'Mot de passe en attente';
+						$_SESSION['button_page'] = 'Envoyer un mail';
+						break;
+						
 					default:
    						$_SESSION['page'] = 'Réversations';
 						break;
@@ -109,6 +107,7 @@
 				case 'Pré-inscription (' . numberOfPreRegistered() . ')':
 				case 'Modifier un adhérent':
 				case 'Supprimer un adhérent':
+				case 'Mot de passe en attente':
 					$section = membersList();		
 					break;
 				
@@ -144,7 +143,11 @@
 			case 'Envoyer un mail':
 				$name_button = 'button';
 				$value_button = $_SESSION['button_page'];
-				$id_button = 0;
+				if ((isset($_POST['page_button']) && $_POST['page_button'] == 'Voir les adhérents') || $_SESSION['page'] == 'Voir les adhérents') {
+					$id_button = 0;
+				} else {
+					$id_button = 5;
+				}
 				break;
 			
 			case 'Valider l\'inscription':
@@ -183,6 +186,14 @@
 	{	
 		if (isset($_POST['button'])) {
 			switch ($_POST['button']) {
+				case 'Se connecter':
+					$page = connectProcess();
+					break;
+				
+				case 'Déconnexion':
+					$page = disconnectProcess();
+					break;
+				
 				case 'Envoyer un mail':
 					$page = sendMail($aUser);
 					break;
@@ -249,26 +260,21 @@
 
 				if ($post == 'user') {
 					$newAdherent->setStatut(intval($_POST['status']));
-					$_SESSION['page'] = 'Pré-inscription (' . numberOfPreRegistered() . ')';
-					$_SESSION['button'] = 'Valider l\'inscription';
-					$page = '<h3>L\'utilisateur a bien été créé. Pensez à lui envoyer un mail pour son mot de passe.</h3>';
+					$_SESSION['page'] = 'Voir les adhérents';
 				}
 
 				if ($post == 'member') {
 					$newAdherent->setAdresse($_POST['address']);
 					$newAdherent->setCp($_POST['cp']);
 					$newAdherent->setVille($_POST['city']);
-
-					$page = '<h3>L\'adhérent a bien été pré-inscrit. Veuillez valider l\'inscritpion.<h3>';
-					$_SESSION['page'] = 'Voir les adhérents';
+					$count = numberOfPreRegistered() + 1;
+					$_SESSION['page'] = 'Pré-inscription (' . $count . ')';
 				}
 				$newAdherent->createUser();
+				$page .= '<center><h3>Un nouvel adhérent a été créé</h3></center>';
 			} else {
-				$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '.<h3>';
 				header ("Refresh: 3");
-
 			}
-		
 		}
 		return $page;
 	}
@@ -285,7 +291,7 @@
 	// Gère la modification de membres
 	function updateMemberButton()
 	{
-		$page = '';
+		$page = '<center>';
 		$exist = null;
 		if (isset($_POST['button'])) {
 			if ($_POST['button'] == 'Modifier') {
@@ -296,9 +302,9 @@
 					$exist = $currentAdherent->freeMail();
 					// Si l'email existe dans la base de données $exist sera différent de null
 					if ($exist !== null) {
-						$page = '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '</h3>.';
+						$page .= '<h3>Ce mail existe déjà dans la base. L\'id de l\'inscrit est ' . $exist . '</h3>.';
 						$_SESSION['page'] = 'Modifier un adhérent';
-						header ("Refresh: 0");
+						header ("Refresh: 3");
 					}
 				} 	
 				// Si l'email n'existe pas ou que l'email reste la même
@@ -313,10 +319,14 @@
 					$page .= '<h3>Mise à jour effectuée</h3>';
 					$currentAdherent->updateUser($_POST['idTemp']);
 					$_SESSION['page'] = 'Modifier un adhérent';
-					header ("Refresh: 0");
+					header ("Refresh: 3");
 				}
 			}
 		}
+
+		$page .= '</center>';
+
+
 		return $page;
 	}
 
@@ -357,7 +367,7 @@
 		$listMembers = array();
 
 		foreach ($data as $value) {
-			if ($value['statut_adherent'] == 'INSCRIT') {
+			if ($value['statut_adherent'] != 'PRE_INSCRIT') {
 				array_push($listMembers, $value);
 			}
 		}
@@ -378,6 +388,21 @@
 		}
 
 		return $listPreRegistered;
+	}
+
+	// Retourne un tableau contenant les adhérents pré-inscrits
+	function getPasswordEmpty()
+	{
+		$data = getData();
+		$listPasswordEmpty = array();
+
+		foreach ($data as $value) {
+			if ($value['mdp_adherent'] === null) {
+				array_push($listPasswordEmpty, $value);
+			}
+		}
+
+		return $listPasswordEmpty;
 	}
 
 	// Retourne le nombre de pré-inscrit
@@ -423,11 +448,53 @@
 		return $object;
 	}
 
-
+	// Gère les données avant de créer un mot de passe
 	function createPass($oUser)
 	{
-		var_dump($oUser);
-		
+		$oUser->setPass(password_hash($oUser->getPass(), PASSWORD_DEFAULT));
+		$oUser->updatePassword();	
+		$_SESSION['page'] = 'Connexion';
+		header ("Refresh: 3;URL=index.php");
+	}
+
+	// Gestion de la connexion
+	function connectProcess()
+	{
+		$adherent = new Adherent();
+					
+		$adherent->setMail($_POST['email']);
+		$adherent->readAdherentByMail();
+		// Si le nom est présent dans la BDD et que le mot de passe n'est pas vide
+		if ($adherent->getNom() !== null && $adherent->getPass() !== null) {
+			$adherent->setStatut($adherent->readStatus(intval($adherent->getId())));
+			// Si l'utilisateur a le bon statut
+			if ($adherent->getStatut() === 'PRESIDENT' || $adherent->getStatut() === 'SECRETAIRE') {
+				if (password_verify($_POST['password'], $adherent->getPass())) {
+					$page = '<h3>Vous êtes connecté.</h3>';
+					$_SESSION['connect'] = 1;
+					$_SESSION['status'] = $adherent->getStatut();
+				} else {
+					$page = '<h3>Erreur de connexion.</h3>';
+				}
+			} else {
+				$page = '<h3>Vous n\'avez pas accès à l\'intranet</h3>';
+			}
+		} else {
+		$page = '<h3>Cette utilisateur n\'existe pas</h3>';
+		}
+		header("Refresh: 3;URL=index.php");
+
+		return $page;
+	}
+
+	// Gestion de la déconnexion
+	function disconnectProcess()
+	{
+		unset($_POST);
+		unset($_SESSION);
+
+		session_destroy();
+		header ("Refresh: 3");
 	}
 
 
